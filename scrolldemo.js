@@ -5,8 +5,6 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { InteractionManager } from "three.interactive";
-import * as TWEEN from "@tweenjs/tween.js";
-import { Color, MathUtils, Object3D, RGBA_ASTC_10x10_Format } from 'three';
 import * as anime from 'animejs/lib/anime.js';
 
 const canv = document.getElementById("myCanvas");
