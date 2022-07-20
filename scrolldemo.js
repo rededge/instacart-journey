@@ -5,7 +5,7 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { InteractionManager } from "three.interactive";
-import * as anime from 'animejs/lib/anime.js';
+import anime from 'animejs/lib/anime.es.js';
 
 const canv = document.getElementById("myCanvas");
 var fps = document.getElementById("fps");
@@ -149,7 +149,7 @@ for (let i = 0; i < 1800; i++) {
   pointProps.push({velocity: 0, acceleration: 0.02});
 }
 starGeo.setAttribute( 'position', new THREE.BufferAttribute( verts, 3 ) );
-let sprite = new THREE.TextureLoader().load('star.png');
+let sprite = new THREE.TextureLoader().load('/star.png');
 var starMaterial = new THREE.PointsMaterial({
   size: .8,
   transparent: true,
@@ -349,7 +349,7 @@ changeColorBuildings.splice(4,1);
 changeColorBuildings.splice(3,1);
 changeColorBuildings.splice(12,1);
 
-loader.load("./free_car_001.gltf", function (gltf) {
+loader.load("/free_car_001.gltf", function (gltf) {
   scene.add(gltf.scene);
   car = gltf.scene;
   car.scale.set(.5, .5, .5);
