@@ -1,0 +1,109 @@
+body{
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+canvas
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
+
+.textbox
+{
+  font-size: 150%;
+  width: 15vw;
+  color: white;
+  background-color: black;
+  position: absolute;
+  margin-left: auto; 
+  right: 10px;
+  padding: 2vh;
+}
+
+#learn-more-btn {
+  color: white;
+  background-color: black;
+  border: 0;
+  font-size: 120%;
+  height: 100%;
+  position: relative;
+}
+
+#main-point1
+{
+  top: 25vh;
+  left: 8vw;
+  margin-left: 0px;
+  opacity: 1;
+  z-index: 2;
+}
+
+#learn-more
+{
+  position: fixed;
+  opacity: 0;
+  z-index: 2;
+}
+
+#main-point2
+{
+  top: 100vh;
+}
+
+#main-point3
+{
+  top: 82%
+}
+
+#extra-fact1
+{
+  position: fixed;
+  right: 10px;
+  background: black;
+  color: white;
+  opacity: 0;
+}
+
+#extra-fact2
+{
+  position: fixed;
+  right: 10px;
+  background: black;
+  color: white;
+  opacity: 0.0;
+}
+
+.container
+{
+  height: 1000vh;
+  position: relative;
+}
+
+#fps
+{
+  position: fixed;
+  top: 0;
+  left: 0;
+  color: white;
+}
+
+#arrow-container
+{
+  padding-top: 5%;
+}
+
+.arrow {
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  display: inline-block;
+  padding: 6%;
+}
+
+.right {
+  transform: rotate(-45deg);
+  -webkit-transform: rotate(-45deg);
+}
