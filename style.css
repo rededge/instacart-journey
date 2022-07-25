@@ -1,4 +1,5 @@
-body{
+body
+{
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -12,6 +13,42 @@ canvas
   z-index: 1;
 }
 
+p 
+{
+  font-size: 85%;
+  padding: 2vh;
+  margin: 0;
+}
+
+.btn-parent
+{
+  position: relative;
+  padding-left: 1.5vh;
+  padding-right: 1.5vh;
+  padding-bottom: 1.5vh;
+  height: 4vh;
+}
+
+.next-btn
+{
+  float: right;
+  border: 0;
+  width: 4vh;
+  height: 4vh;
+  border-radius: 60%;
+  font-size: 120%;
+}
+
+.prev-btn
+{
+  float: left;
+  border: 0;
+  width: 4vh;
+  height: 4vh;
+  border-radius: 60%;
+  font-size: 120%;
+}
+
 .textbox
 {
   font-size: 150%;
@@ -21,15 +58,23 @@ canvas
   position: absolute;
   margin-left: auto; 
   right: 10px;
-  padding: 2vh;
 }
 
-#learn-more-btn {
+#fps
+{
+  z-index: 2;
+}
+
+#learn-more-btn 
+{
   color: white;
   background-color: black;
   border: 0;
   font-size: 120%;
   height: 100%;
+  width: 100%;
+  padding: 2vh;
+  margin: 0;
   position: relative;
 }
 
@@ -59,6 +104,15 @@ canvas
   top: 82%
 }
 
+#main-point4
+{
+  position: fixed;
+  opacity: 0;
+  top: 10vh;
+  left: 8vw;
+  width: 20vw;
+  margin-left: 0px;
+}
 #extra-fact1
 {
   position: fixed;
@@ -96,14 +150,16 @@ canvas
   padding-top: 5%;
 }
 
-.arrow {
+.arrow 
+{
   border: solid white;
   border-width: 0 3px 3px 0;
   display: inline-block;
   padding: 6%;
 }
 
-.right {
+.right 
+{
   transform: rotate(-45deg);
   -webkit-transform: rotate(-45deg);
 }

@@ -6,6 +6,11 @@ import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { InteractionManager } from "three.interactive";
 import anime from 'animejs/lib/anime.es.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
+import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 
 const canv = document.getElementById("myCanvas");
 var fps = document.getElementById("fps");
@@ -14,6 +19,49 @@ var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
 var extraFact1 = document.getElementById("extra-fact1");
 var extraFact2 = document.getElementById("extra-fact2");
+
+
+var mainPoint1 = document.getElementById("main-point1");
+var point1Ps = mainPoint1.querySelectorAll("p");
+let p1Idx =  0;
+mainPoint1.querySelector(".next-btn").onclick = function()
+{
+  if (p1Idx < point1Ps.length - 1)
+    p1Idx++;
+  mainPoint1.querySelector(".prev-btn").style.display = "block";
+  if (p1Idx == point1Ps.length - 1)
+  {
+
+    mainPoint1.querySelector(".next-btn").style.display = "none";
+    flashCityAnim.play();
+    cityGroup.addEventListener("mouseover", highlight);
+    cityGroup.addEventListener("mouseout", unhighlight);
+    cityGroup.addEventListener("click", cityClickHandler);
+  }
+  for (let i = 0; i < point1Ps.length; i++)
+  {
+    if (i == p1Idx)
+    point1Ps[i].style.display = "block";
+    else
+      point1Ps[i].style.display = "none";
+  }
+}
+
+mainPoint1.querySelector(".prev-btn").onclick = function()
+{
+  if (p1Idx > 0)
+    p1Idx--;
+  mainPoint1.querySelector(".next-btn").style.display = "block";
+  if (p1Idx == 0)
+    mainPoint1.querySelector(".prev-btn").style.display = "none";
+  for (let i = 0; i < point1Ps.length; i++)
+  {
+    if (i == p1Idx)
+    point1Ps[i].style.display = "block";
+    else
+      point1Ps[i].style.display = "none";
+  }
+}
 
 
 const renderer = createRenderer();
@@ -27,7 +75,7 @@ camera.rotation.set(-0.7647684463428301, -0.629728848719099, -0.5143735079666867
 var initialCameraZ = 3;
 
 const light = createLight();
-const ambLight = new THREE.AmbientLight(0xffffff, 2.5);
+const ambLight = new THREE.AmbientLight(0xffffff, .6);
 scene.add(light);
 scene.add(ambLight);
 var leftBuildings = [];
@@ -95,19 +143,62 @@ function lerp(a, b, t)
   return ((1 - t) * a + t * b);
 }
 
+let selectedObjects = [];
+
+let composer = new EffectComposer( renderer );
+
+const renderPass = new RenderPass( scene, camera );
+composer.addPass( renderPass );
+
+let outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
+var params = {
+  edgeStrength: 5,
+  edgeGlow: 0,
+  edgeThickness: 1.0,
+  pulsePeriod: 0,
+  usePatternTexture: false
+};
+outlinePass.edgeStrength = params.edgeStrength;
+outlinePass.edgeGlow = params.edgeGlow;
+outlinePass.visibleEdgeColor.set(0x000000);
+outlinePass.hiddenEdgeColor.set(0x000000);
+outlinePass.overlayMaterial.blending = THREE.CustomBlending;
+outlinePass.selectedObjects = selectedObjects;
+
+composer.addPass(renderPass);
+//composer.addPass(outlinePass);
+
+let effectFXAA = new ShaderPass( FXAAShader );
+effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
+//composer.addPass( effectFXAA );
+
 const interactionManager = new InteractionManager(
   renderer,
   camera,
   renderer.domElement
 );
-
 var cityGroup = new THREE.Group();
-scene.add(cityGroup);
+var loader = new GLTFLoader();
+/*
+loader.load("/Projectfile_v1.gltf", function (gltf) {
+  scene.add(gltf.scene);
+  gltf.scene.position.set(0,0,0);
+  gltf.scene.scale.set(.03,.03,.03);  
+  gltf.scene.traverse((o) => {
+    if (o.isMesh) {
+      let oldMaterial = o.material;
+    }
+  });
+  selectedObjects.push(gltf.scene);
+});
+*/
+
 //create city
+scene.add(cityGroup);
 let zStep = -3;
 for (let c = 0; c < 10; c++)
 {
-  let cube = createCube({ color: 0x181b24, x: -2, y: 0, z: c*zStep});
+  let cube = createCube({ color: 0x6c79a1, x: -2, y: 0, z: c*zStep});
   cube.scale.set(1,2.5,1);
   cityGroup.add(cube);
   leftBuildings.push(cube);
@@ -115,25 +206,26 @@ for (let c = 0; c < 10; c++)
 
 for (let c = 0; c < 10; c++)
 {
-  let cube = createCube({ color: 0x181b24, x: 2, y: 0, z: c*zStep});
+  let cube = createCube({ color: 0x6c79a1, x: 2, y: 0, z: c*zStep});
   cube.scale.set(1,2.5,1);
   cityGroup.add(cube);
   rightBuildings.push(cube);
 }
-rightBuildings[4].material.color = new THREE.Color(0x404018);
-let street = createCube({color: 0X0f0f0f, x:0, y:-1, z:-18});
+rightBuildings[4].material.color = new THREE.Color(0xc9c94f);
+let street = createCube({color: 0X212121, x:0, y:-1, z:-18});
 street.material.color.a
 street.scale.set(2, .1, 40);
 cityGroup.add(street);
-let floor = createCube({color: 0X2b2b2b, x:0, y:-2, z:-18});
+let floor = createCube({color: 0Xa1a1a1, x:0, y:-2, z:-18});
 floor.scale.set(40, 2, 40);
 cityGroup.add(floor);
+
 
 //phone scene
 var phoneSceneGroup = new THREE.Group();
 phoneSceneGroup.position.set(18000, 22000, 17000);
 scene.add(phoneSceneGroup);
-var phoneCase = createCube({ color: 0x181b24, x: 10, y: -1, z: -5});
+var phoneCase = createCube({ color: 0xa1a1a1, x: 10, y: -1, z: -5});
 phoneCase.scale.set(2, 4, .25);
 var phoneLight = createLight();
 phoneLight.position.set(10, 5, 0);
@@ -162,7 +254,7 @@ var currCityBrightness = 0;
 function highlight()
 {
   flashCityAnim.pause();
-  changeCityBrightness(.07 - currCityBrightness);
+  changeCityBrightness(.3 - currCityBrightness);
 }
 
 function unhighlight()
@@ -180,14 +272,12 @@ function changeCityBrightness(value)
   currCityBrightness += value;
 }
 
-cityGroup.addEventListener("mouseover", highlight);
-cityGroup.addEventListener("mouseout", unhighlight);
-
 var flashCityAnim = anime({
   duration: 2250,
   loop: true,
+  autoplay: false,
   update: function(anim) {
-    changeCityBrightness(.001 * Math.sin((2*Math.PI * anim.progress)/100));
+    changeCityBrightness(.004 * Math.sin((2*Math.PI * anim.progress)/100));
   }
 });
 
@@ -233,9 +323,7 @@ function cityClickHandler()
   changeCityBrightness(-currCityBrightness);
   canv.style.zIndex = -1;
 }
-cityGroup.addEventListener("click", cityClickHandler);
 interactionManager.add(cityGroup);
-var loader = new GLTFLoader();
 var mtlLoader = new MTLLoader();
 var objLoader = new OBJLoader();
 var car = new THREE.Scene();
@@ -305,19 +393,6 @@ document.getElementById("learn-more-btn").onclick = function()
     }
   });
   anime({
-    targets: scene.background,
-    easing: 'easeInQuad',
-    duration: 1500,
-    delay: 500,
-    r: 9/255,
-    g: 15/255,
-    b: 40/255,
-    complete: function() {
-      updateStars = true;
-      camera.far = 500;
-    }
-  });
-  anime({
     targets: ['#main-point3', '#learn-more'],
     easing: 'easeInOutSine',
     duration: 1000,
@@ -325,6 +400,26 @@ document.getElementById("learn-more-btn").onclick = function()
     complete: function() {
       learnMore.style.display = "none";
     }
+  });
+  anime({
+    targets: scene.background,
+    easing: 'easeInQuad',
+    duration: 1500,
+    delay: 500,
+    r: 15/255,
+    g: 25/255,
+    b: 60/255,
+    complete: function() {
+      updateStars = true;
+      camera.far = 500;
+    }
+  });
+  anime({
+    targets: ['#main-point4'],
+    easing: 'easeInOutSine',
+    delay: 2200,
+    duration: 1000,
+    opacity: 1,
   });
   document.body.style.overflow = "hidden";
   anime({
@@ -442,9 +537,9 @@ function initTimeline()
     timeline.add({
       duration: animDurations["secondStop"],
       targets: [leftBuildings[8].material.color, camera.rotation],
-      r: 16/255,
-      g: 36/255,
-      b: 16/255,
+      r: 60/255,
+      g: 190/255,
+      b: 60/255,
       y: .25,
       x: -.2
     }, getTimePosition("secondStop"));
@@ -492,9 +587,9 @@ function initTimeline()
     timeline.add({
       duration: animDurations["panOutToCity"]/1.5,
       targets: changeColorBuildings,
-      r: 16/255,
-      g: 36/255,
-      b: 16/255,
+      r: 60/255,
+      g: 190/255,
+      b: 60/255,
     }, getTimePosition("panOutToCity"));
     timeline.add({
       duration:animDurations["panOutToCity"]/3,
@@ -539,7 +634,7 @@ animate((time) =>
     if (stars.material.opacity < .99)
       stars.material.opacity += .0025;
   }
-  renderer.render(scene, camera);
+  composer.render();
 });
 
 function createRenderer() 
@@ -562,7 +657,7 @@ function createCamera(zPos)
   const camera = new THREE.PerspectiveCamera(
     75,
     window.innerWidth / window.innerHeight,
-    0.1,
+    .75,
     4000
   );
   camera.position.z = zPos;
@@ -590,7 +685,7 @@ function animate(callback)
   
 function createLight() 
 {
-  const light = new THREE.PointLight(0xffffff, 2.5, 1000);
+  const light = new THREE.PointLight(0xffffff, .75, 1000);
   light.position.set(0, 50, 100);
   return light;
 }
@@ -620,7 +715,7 @@ function handleMobileAspect()
   initialCameraZ = 2.25;
   const textBoxes = document.querySelectorAll('.textbox');
   textBoxes.forEach(tb =>{
-    tb.style.width = "20vw";
+    tb.style.width = "25vw";
     tb.style.fontSize = "100%";
   });
 }
