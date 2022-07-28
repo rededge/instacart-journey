@@ -9,10 +9,6 @@ import Stats from 'three/examples/jsm/libs/stats.module'
 import anime from 'animejs/lib/anime.es.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
-import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
-import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
-import { LinearEncoding, MeshToonMaterial } from 'three';
 import starUrl from './star.png';
 import carUrl from './free_car_001.gltf';
 
@@ -81,8 +77,7 @@ camera.position.set(-34.26239634764333, 23.034063999551854, 17.327648759285232);
 camera.rotation.set(-0.7647684463428301, -0.629728848719099, -0.5143735079666867);
 var initialCameraZ = 3;
 
-const light = new THREE.DirectionalLight(0xffffff, .5);
-//const light = createLight();
+const light = createLight();
 light.castShadow = true;
 light.position.set(20,20,20);
 light.shadow.mapSize.width = 512; // default
@@ -612,7 +607,6 @@ var starFlyTime = 1;
 var starBuff = starGeo.getAttribute('position');
 animate((time) => 
 {
-  light.position.set(50* Math.cos(time*.0001), 30, 50* Math.sin(time*.0001));
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
   percentage = lerp(percentage, scrollY, .03);  
@@ -691,7 +685,7 @@ function animate(callback)
   
 function createLight() 
 {
-  const light = new THREE.PointLight(0xffffff, .5, 100);
+  const light = new THREE.PointLight(0xffffff, .5, 1000);
   light.position.set(0, 50, 90);
   return light;
 }
@@ -717,7 +711,7 @@ window.onbeforeunload = function () {
 function handleMobileAspect()
 {
   rotFactor = 2;
-  camera.zoom = .7;
+  camera.zoom = .1;
   camera.fov = 95;
   camera.updateMatrix();
   camera.updateMatrixWorld();
