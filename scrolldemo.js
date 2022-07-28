@@ -5,20 +5,23 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader'
 import { MTLLoader } from 'three/examples/jsm/loaders/MTLLoader'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { InteractionManager } from "three.interactive";
+import Stats from 'three/examples/jsm/libs/stats.module'
 import anime from 'animejs/lib/anime.es.js';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { LinearEncoding, MeshToonMaterial } from 'three';
 
+const stats = Stats()
+document.body.appendChild(stats.dom);
 const canv = document.getElementById("myCanvas");
 var fps = document.getElementById("fps");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
-var extraFact1 = document.getElementById("extra-fact1");
-var extraFact2 = document.getElementById("extra-fact2");
+var rotFactor = 1;
 
 
 var mainPoint1 = document.getElementById("main-point1");
@@ -74,8 +77,15 @@ camera.position.set(-34.26239634764333, 23.034063999551854, 17.327648759285232);
 camera.rotation.set(-0.7647684463428301, -0.629728848719099, -0.5143735079666867);
 var initialCameraZ = 3;
 
-const light = createLight();
-const ambLight = new THREE.AmbientLight(0xffffff, .6);
+const light = new THREE.DirectionalLight(0xffffff, .5);
+//const light = createLight();
+light.castShadow = true;
+light.position.set(20,20,20);
+light.shadow.mapSize.width = 512; // default
+light.shadow.mapSize.height = 512; // default
+light.shadow.camera.near = 0.5; // default
+light.shadow.camera.far = 500; // default
+const ambLight = new THREE.AmbientLight(0xffffff, .7);
 scene.add(light);
 scene.add(ambLight);
 var leftBuildings = [];
@@ -150,27 +160,6 @@ let composer = new EffectComposer( renderer );
 const renderPass = new RenderPass( scene, camera );
 composer.addPass( renderPass );
 
-let outlinePass = new OutlinePass( new THREE.Vector2( window.innerWidth, window.innerHeight ), scene, camera );
-var params = {
-  edgeStrength: 5,
-  edgeGlow: 0,
-  edgeThickness: 1.0,
-  pulsePeriod: 0,
-  usePatternTexture: false
-};
-outlinePass.edgeStrength = params.edgeStrength;
-outlinePass.edgeGlow = params.edgeGlow;
-outlinePass.visibleEdgeColor.set(0x000000);
-outlinePass.hiddenEdgeColor.set(0x000000);
-outlinePass.overlayMaterial.blending = THREE.CustomBlending;
-outlinePass.selectedObjects = selectedObjects;
-
-composer.addPass(renderPass);
-//composer.addPass(outlinePass);
-
-let effectFXAA = new ShaderPass( FXAAShader );
-effectFXAA.uniforms[ 'resolution' ].value.set( 1 / window.innerWidth, 1 / window.innerHeight );
-//composer.addPass( effectFXAA );
 
 const interactionManager = new InteractionManager(
   renderer,
@@ -179,16 +168,31 @@ const interactionManager = new InteractionManager(
 );
 var cityGroup = new THREE.Group();
 var loader = new GLTFLoader();
+
+var oldCityMats = [];
+var newCityMats = [];
+
+const fourTone = new THREE.TextureLoader().load('fourTone.jpg');
+const threeTone = new THREE.TextureLoader().load('threeTone.jpg');
+fourTone.minFilter = THREE.NearestFilter;
+fourTone.magFilter = THREE.NearestFilter;
+threeTone.minFilter = THREE.NearestFilter;
+threeTone.magFilter = THREE.NearestFilter;
+const materialParams = {
+  gradientMap: threeTone,
+};
+
 /*
+const sphereGeometry = new THREE.SphereGeometry( 5, 32, 16 );
+const sphereMaterial = new THREE.MeshToonMaterial( materialParams );
+const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
+scene.add( sphere );
+sphere.position.set(0,20,0);
+
 loader.load("/Projectfile_v1.gltf", function (gltf) {
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
-  gltf.scene.scale.set(.03,.03,.03);  
-  gltf.scene.traverse((o) => {
-    if (o.isMesh) {
-      let oldMaterial = o.material;
-    }
-  });
+  gltf.scene.scale.set(.03,.03,.03);
   selectedObjects.push(gltf.scene);
 });
 */
@@ -220,7 +224,6 @@ let floor = createCube({color: 0Xa1a1a1, x:0, y:-2, z:-18});
 floor.scale.set(40, 2, 40);
 cityGroup.add(floor);
 
-
 //phone scene
 var phoneSceneGroup = new THREE.Group();
 phoneSceneGroup.position.set(18000, 22000, 17000);
@@ -243,7 +246,7 @@ for (let i = 0; i < 1800; i++) {
 starGeo.setAttribute( 'position', new THREE.BufferAttribute( verts, 3 ) );
 let sprite = new THREE.TextureLoader().load('/star.png');
 var starMaterial = new THREE.PointsMaterial({
-  size: .8,
+  size: 1.5,
   transparent: true,
   opacity: 0,
   map: sprite
@@ -264,12 +267,19 @@ function unhighlight()
   flashCityAnim.play();
 }
 
+
 function changeCityBrightness(value)
 {
+  /*
   for (let c = 0; c < cityGroup.children.length; c++) {
     cityGroup.children[c].material.color.addScalar(value);
   }
-  currCityBrightness += value;
+  */
+  for (let c = 0; c < newCityMats.length; c++)
+  {
+    newCityMats[c].color.addScalar(value);
+    currCityBrightness += value;
+  }
 }
 
 var flashCityAnim = anime({
@@ -331,11 +341,11 @@ var car = new THREE.Scene();
 //create timeline
 var animDurations = 
 {
-  beforeFirstStop: 1500,
-  firstStop: 800,
-  afterFirstStop: 1500,
-  secondStop: 1000,
-  panOutToCity: 2500,
+  beforeFirstStop: 1000,
+  firstStop: 1500,
+  afterFirstStop: 1000,
+  secondStop: 1500,
+  panOutToCity: 1500,
 }
 
 function getTimePosition(anim)
@@ -360,8 +370,6 @@ function getTimelineLength()
 
 var timelineLength = getTimelineLength();
 var timeline;
-var point2Top = mainPoint2.offsetTop;
-var point3Top = mainPoint3.offsetTop;
 var scrollDistance = -24;
 var initialCarZ = .25;
 var changeColorBuildings = []
@@ -414,30 +422,29 @@ document.getElementById("learn-more-btn").onclick = function()
       camera.far = 500;
     }
   });
-  anime({
-    targets: ['#main-point4'],
-    easing: 'easeInOutSine',
-    delay: 2200,
-    duration: 1000,
-    opacity: 1,
-  });
   document.body.style.overflow = "hidden";
   anime({
     duration:1750,
-    delay: 2200,
+    delay: 3200,
     easing: 'easeOutElastic(1.5, .5)',
     targets: phoneCase.position,
     x: 0
   });
   anime({
     duration: 580,
-    delay: 2200,
+    delay: 3200,
     targets: [phoneCase.rotation],
     direction: 'alternate',
     easing: 'easeInElastic(3, 2)',
     z: .25
   });
-
+  anime({
+    targets: ['#main-point4'],
+    easing: 'easeOutElastic(1, .65)',
+    bottom: window.innerHeight - document.getElementById("main-point4").offsetHeight + "px",
+    duration: 750,
+    delay: 2200
+  });
 }
 
 changeColorBuildings.splice(4,1);
@@ -466,16 +473,6 @@ function initTimeline()
     targets: [camera.position],
     z: initialCameraZ + scrollDistance/2,
     duration: animDurations["beforeFirstStop"],
-    change:()=> {
-      if (window.scrollY >= point2Top) {
-        mainPoint2.style.top = 0;
-        mainPoint2.style.position = "fixed";
-      }
-      else {
-        mainPoint2.style.position = "absolute";
-        mainPoint2.style.top = point2Top + "px";
-      }
-    },
   });
 
   //car before stop 1
@@ -485,29 +482,38 @@ function initTimeline()
     duration: animDurations["beforeFirstStop"],
   }, getTimePosition("beforeFirstStop"));
 
+  timeline.add({ 
+    targets: ["#main-point2"],
+    easing: 'easeOutElastic(10, .65)',
+    bottom: window.innerHeight - (mainPoint2.offsetHeight) + "px",
+    duration: animDurations["beforeFirstStop"]/2,
+  }, getTimePosition("beforeFirstStop") + animDurations["beforeFirstStop"]/5);
+
   //first stop
   timeline.add({
-    duration: timelineLength / 10,
-    targets: ['#extra-fact1'],
-    opacity : 1,
-    changeBegin: function()
-    {
-      extraFact1.style.top = mainPoint2.getBoundingClientRect().bottom + 10 + "px";
-    },
+    duration: animDurations["firstStop"]/4,
+    targets: ['#extra-fact1-1'],
+    top:  25 + "vh",
   }, getTimePosition("firstStop"));
 
   timeline.add({
+    duration: animDurations["firstStop"]/3,
+    targets: ['#extra-fact1-2'],
+    top: window.innerHeight * .25 + document.getElementById("extra-fact1-1").offsetHeight * 1.15 + "px",
+  }, getTimePosition("firstStop") + animDurations["firstStop"]/4);
+
+  timeline.add({
     duration: 3 * animDurations["firstStop"]/4,
-    easing: "easeInOutSine",
+    easing: "easeInOutQuad",
     targets: [camera.rotation],
     x: -.2,
-    y: -.25,
+    y: -.25 * rotFactor,
   }, getTimePosition("firstStop"));
 
   //camera after stop 1
   timeline.add({
     duration: 3 * animDurations["firstStop"]/4,
-    easing: "easeInOutSine",
+    easing: "easeInOutQuad",
     targets: [camera.rotation],
     x: -.3,
     y: 0,
@@ -529,36 +535,32 @@ function initTimeline()
 
     timeline.add({
       duration: timelineLength/10,
-      targets: '#extra-fact1',
+      targets: ['#extra-fact1-1', '#extra-fact1-2'],
       opacity: 0,
     }, getTimePosition("secondStop") - timelineLength/10);
 
     //stop 2
     timeline.add({
-      duration: animDurations["secondStop"],
+      duration: animDurations["secondStop"]/1.5,
+      targets: '#extra-fact2',
+      top: 25 + "vh",
+    }, getTimePosition("secondStop"));
+
+    timeline.add({
+      duration: animDurations["secondStop"]/2,
       targets: [leftBuildings[8].material.color, camera.rotation],
       r: 60/255,
       g: 190/255,
       b: 60/255,
-      y: .25,
+      y: .3 * rotFactor,
       x: -.2
-    }, getTimePosition("secondStop"));
-
-    timeline.add({
-      duration: animDurations["secondStop"],
-      targets: '#extra-fact2',
-      opacity: 1,
-      changeBegin: function()
-      {
-        extraFact2.style.top = mainPoint2.getBoundingClientRect().bottom + 10 + "px";
-      },
-    }, getTimePosition("secondStop"));
+    }, getTimePosition("secondStop") + animDurations["secondStop"]/2);
     
     timeline.add({
       duration: animDurations["panOutToCity"]/3,
       targets: ['#extra-fact2', "#main-point2"],
       opacity: 0,
-    }, getTimePosition("panOutToCity"));
+    }, getTimePosition("panOutToCity")) + animDurations["panOutToCity"]/3;
 
     timeline.add({
       duration: animDurations["panOutToCity"] / 1.25,
@@ -573,16 +575,6 @@ function initTimeline()
       x: -0.795,
       y: 0.60,
       z: 0.523,
-      change:()=> {
-        if (window.scrollY >= point3Top) {
-          mainPoint3.style.top = 0;
-          mainPoint3.style.position = "fixed";
-        }
-        else {
-          mainPoint3.style.position = "absolute";
-          mainPoint3.style.top = point3Top + "px";
-        }
-      },
     }, getTimePosition("panOutToCity"));
     timeline.add({
       duration: animDurations["panOutToCity"]/1.5,
@@ -592,12 +584,18 @@ function initTimeline()
       b: 60/255,
     }, getTimePosition("panOutToCity"));
     timeline.add({
+      duration: animDurations["panOutToCity"]/3,
+      targets: ["#main-point3"],
+      easing: 'easeOutElastic(10, .65)',
+      bottom: window.innerHeight - (mainPoint3.offsetHeight) + "px",
+    }, getTimePosition("panOutToCity")+ animDurations["panOutToCity"]/3);
+    timeline.add({
       duration:animDurations["panOutToCity"]/3,
       targets: "#learn-more",
       opacity: 1,
       changeBegin: function()
       {
-        learnMore.style.top = mainPoint3.getBoundingClientRect().bottom + 10 + "px";
+        learnMore.style.top = 30 + "vh";
       },
     }, getTimePosition("panOutToCity") + 2*animDurations["panOutToCity"]/3);
 }
@@ -610,6 +608,7 @@ var starFlyTime = 1;
 var starBuff = starGeo.getAttribute('position');
 animate((time) => 
 {
+  light.position.set(50* Math.cos(time*.0001), 30, 50* Math.sin(time*.0001));
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
   percentage = lerp(percentage, scrollY, .03);  
@@ -634,12 +633,15 @@ animate((time) =>
     if (stars.material.opacity < .99)
       stars.material.opacity += .0025;
   }
+  stats.update();
   composer.render();
 });
 
 function createRenderer() 
 {
-  const renderer = new THREE.WebGLRenderer({ canvas: canv, antialias: true });
+  const renderer = new THREE.WebGLRenderer({ canvas: canv, antialias: false });
+  //renderer.shadowMap.enabled = true;
+  //renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   return renderer;
@@ -648,7 +650,7 @@ function createRenderer()
 function createScene() 
 {
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x27a0e6);
+  scene.background = new THREE.Color(0xF9F1E6);
   return scene;
 }
   
@@ -685,8 +687,8 @@ function animate(callback)
   
 function createLight() 
 {
-  const light = new THREE.PointLight(0xffffff, .75, 1000);
-  light.position.set(0, 50, 100);
+  const light = new THREE.PointLight(0xffffff, .5, 100);
+  light.position.set(0, 50, 90);
   return light;
 }
 
@@ -710,18 +712,29 @@ window.onbeforeunload = function () {
 
 function handleMobileAspect()
 {
-  camera.zoom = .6;
-  camera.fov = 90;
+  rotFactor = 2;
+  camera.zoom = .7;
+  camera.fov = 95;
+  camera.updateMatrix();
+  camera.updateMatrixWorld();
+  camera.updateProjectionMatrix();
+  camera.updateWorldMatrix();
   initialCameraZ = 2.25;
   const textBoxes = document.querySelectorAll('.textbox');
   textBoxes.forEach(tb =>{
     tb.style.width = "25vw";
     tb.style.fontSize = "100%";
   });
+  const banners = document.querySelectorAll('.banner-point');
+  banners.forEach(b =>{
+    b.style.width = "75vw";
+    b.style.fontSize = "200%";
+  });
 }
 
 function handleDefautlAspect()
 {
+  rotFactor = 1;
   camera.zoom = 1;
   camera.fov = 75;
   initialCameraZ = 3;
@@ -732,57 +745,3 @@ function handleDefautlAspect()
   });
 }
 
-/*
-mtlLoader.load("./Lowpoly_City_Free_Pack.mtl", function(mats){
-  mats.preload();
-  objLoader.setMaterials(mats);
-  objLoader.load("./Lowpoly_City_Free_Pack.obj", function(object){
-    scene.add(object);
-    object.scale.set(.05, .05, .05);
-  });
-});
-var mats = []
-loader.load("./Building 2.gltf", function(gltf) {
-  let model = gltf.scene;
-  scene.add(model);
-  model.scale.set(.01, .01, .01);
-  model.position.set(camera.position.x +7,camera.position.y -2,camera.position.z - 5);
-});
-loader.load("./Building 2.gltf", function(gltf) {
-  let model = gltf.scene;
-  scene.add(model);
-  model.scale.set(.01, .01, .01);
-  model.position.set(camera.position.x +3,camera.position.y -2,camera.position.z - 5);
-  model.traverse((o) => {
-    if (o.isMesh && !mats.includes(o.material)) {
-      mats.push(o.material);
-      console.log(o.material.color);
-    }
-  });
-  var buildingFlashAnim = anime({
-    duration: 3000,
-    loop: true,
-    change: function(anim)
-    {
-      let colorChange = .05 * Math.sin(2*Math.PI * anim.progress/100);
-      for (let i = 0; i < mats.length; i++)
-      {
-        mats[i].color.addScalar(colorChange);
-      }
-    }
-  });
-});
-
-var building = new Object3D();
-mtlLoader.load("./Building1.mtl", function(mats) 
-{
-  mats.preload();
-  objLoader.setMaterials(mats);
-  objLoader.load("./Building1.obj", function(object) {
-    building = object;
-    scene.add(building);
-    building.scale.set(.01, .01, .01);
-    building.position.set(camera.position.x +3,camera.position.y -2,camera.position.z - 3);
-  });
-});
-*/

@@ -49,14 +49,19 @@ p
   font-size: 120%;
 }
 
+#main-point3
+{
+  width: 35vw;
+}
+
 .textbox
 {
   font-size: 150%;
   width: 15vw;
-  color: white;
-  background-color: black;
-  position: absolute;
-  margin-left: auto; 
+  background-color: #003D29;
+  color: #F9F1E6;
+  position: fixed;
+  margin-left: auto;
   right: 10px;
 }
 
@@ -67,8 +72,8 @@ p
 
 #learn-more-btn 
 {
-  color: white;
-  background-color: black;
+  background-color: #003D29;
+  color: #F9F1E6;
   border: 0;
   font-size: 120%;
   height: 100%;
@@ -80,10 +85,9 @@ p
 
 #main-point1
 {
-  top: 25vh;
+  top: 18vh;
   left: 8vw;
   margin-left: 0px;
-  opacity: 1;
   z-index: 2;
 }
 
@@ -94,46 +98,53 @@ p
   z-index: 2;
 }
 
-#main-point2
+.banner-point
 {
-  top: 100vh;
-}
-
-#main-point3
-{
-  top: 82%
+  bottom: 100vh;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0);
+  padding: 1vh;
+  font-size: 250%;
+  width: 30vw;
+  color: #003D29;
+  text-align: center;
 }
 
 #main-point4
 {
-  position: fixed;
-  opacity: 0;
-  top: 10vh;
-  left: 8vw;
-  width: 20vw;
-  margin-left: 0px;
+  color: #F9F1E6;
+
 }
-#extra-fact1
+
+#extra-fact1-1
 {
+  top: 110vh;
   position: fixed;
   right: 10px;
-  background: black;
-  color: white;
-  opacity: 0;
+  opacity: 1;
 }
+
+#extra-fact1-2
+{
+  top: 110vh;
+  position: fixed;
+  right: 10px;
+  opacity: 1;
+}
+
 
 #extra-fact2
 {
+  top: 110vh;
   position: fixed;
   right: 10px;
-  background: black;
-  color: white;
-  opacity: 0.0;
+  opacity: 1.0;
 }
 
 .container
 {
-  height: 1000vh;
+  height: 1200vh;
   position: relative;
 }
 
