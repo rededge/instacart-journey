@@ -13,6 +13,10 @@ import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader.js';
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
 import { LinearEncoding, MeshToonMaterial } from 'three';
+import starUrl from './star.png';
+import carUrl from './free_car_001.gltf';
+
+
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
@@ -244,7 +248,7 @@ for (let i = 0; i < 1800; i++) {
   pointProps.push({velocity: 0, acceleration: 0.02});
 }
 starGeo.setAttribute( 'position', new THREE.BufferAttribute( verts, 3 ) );
-let sprite = new THREE.TextureLoader().load('/star.png');
+let sprite = new THREE.TextureLoader().load(starUrl);
 var starMaterial = new THREE.PointsMaterial({
   size: 1.5,
   transparent: true,
@@ -451,7 +455,7 @@ changeColorBuildings.splice(4,1);
 changeColorBuildings.splice(3,1);
 changeColorBuildings.splice(12,1);
 
-loader.load("/free_car_001.gltf", function (gltf) {
+loader.load(carUrl, function (gltf) {
   scene.add(gltf.scene);
   car = gltf.scene;
   car.scale.set(.5, .5, .5);
