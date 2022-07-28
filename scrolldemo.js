@@ -711,7 +711,7 @@ window.onbeforeunload = function () {
 function handleMobileAspect()
 {
   rotFactor = 2;
-  camera.zoom = .1;
+  camera.zoom = .7;
   camera.fov = 95;
   camera.updateMatrix();
   camera.updateMatrixWorld();
