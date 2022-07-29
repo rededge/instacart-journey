@@ -18,13 +18,13 @@ const stats = Stats()
 document.body.appendChild(stats.dom);
 const canv = document.getElementById("myCanvas");
 var fps = document.getElementById("fps");
+var mainPoint1 = document.getElementById("main-point1");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
 var rotFactor = 1;
 
 
-var mainPoint1 = document.getElementById("main-point1");
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
 mainPoint1.querySelector(".next-btn").onclick = function()
@@ -73,7 +73,7 @@ const camera = createCamera(3);
 
 //camera.position.set(18000,22000,17000);
 //camera.rotation.set(0,0,0);
-camera.position.set(-34.26239634764333, 23.034063999551854, 17.327648759285232);
+camera.position.set(-34.26239634764333, 27.5, 17.327648759285232);
 camera.rotation.set(-0.7647684463428301, -0.629728848719099, -0.5143735079666867);
 var initialCameraZ = 3;
 
@@ -480,11 +480,14 @@ function initTimeline()
     z: initialCarZ + scrollDistance/2,
     duration: animDurations["beforeFirstStop"],
   }, getTimePosition("beforeFirstStop"));
+}
 
+function createFinalTimeline()
+{
   timeline.add({ 
     targets: ["#main-point2"],
     easing: 'easeOutElastic(10, .65)',
-    bottom: window.innerHeight - (mainPoint2.offsetHeight) + "px",
+    bottom: canv.offsetHeight - (mainPoint2.offsetHeight) + "px",
     duration: animDurations["beforeFirstStop"]/2,
   }, getTimePosition("beforeFirstStop") + animDurations["beforeFirstStop"]/5);
 
@@ -592,10 +595,6 @@ function initTimeline()
       duration:animDurations["panOutToCity"]/3,
       targets: "#learn-more",
       opacity: 1,
-      changeBegin: function()
-      {
-        learnMore.style.top = 30 + "vh";
-      },
     }, getTimePosition("panOutToCity") + 2*animDurations["panOutToCity"]/3);
 }
 
@@ -605,14 +604,22 @@ var updateStars = false;
 var starFlyTime = 1;
 
 var starBuff = starGeo.getAttribute('position');
+var finalTimeline = false;
 animate((time) => 
 {
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
-  percentage = lerp(percentage, scrollY, .03);  
+  //console.log(window.scrollY);
+  if (!finalTimeline && window.scrollY / maxHeight > .04)
+  {
+    finalTimeline = true;
+    createFinalTimeline();
+  }
+  percentage = lerp(percentage, window.scrollY, .03);  
   var timelinePoint =  timelineLength * (percentage / maxHeight);
-  if (timeline)
+  if (timeline) {
     timeline.seek(timelinePoint);
+  }
   //controls.update();
   interactionManager.update();
   if (updateStars)
@@ -704,6 +711,7 @@ function resize ()
   camera.updateProjectionMatrix();
 }
 
+
 window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
@@ -720,7 +728,7 @@ function handleMobileAspect()
   initialCameraZ = 2.25;
   const textBoxes = document.querySelectorAll('.textbox');
   textBoxes.forEach(tb =>{
-    tb.style.width = "25vw";
+    tb.style.width = "30vw";
     tb.style.fontSize = "100%";
   });
   const banners = document.querySelectorAll('.banner-point');
