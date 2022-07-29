@@ -27,6 +27,7 @@ var rotFactor = 1;
 
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
+
 mainPoint1.querySelector(".next-btn").onclick = function()
 {
   if (p1Idx < point1Ps.length - 1)
@@ -495,13 +496,13 @@ function createFinalTimeline()
   timeline.add({
     duration: animDurations["firstStop"]/4,
     targets: ['#extra-fact1-1'],
-    top:  25 + "vh",
+    top: mainPoint2.offsetHeight + vhToPx(pointPaddingVh) + "px",
   }, getTimePosition("firstStop"));
 
   timeline.add({
     duration: animDurations["firstStop"]/3,
     targets: ['#extra-fact1-2'],
-    top: window.innerHeight * .25 + document.getElementById("extra-fact1-1").offsetHeight * 1.15 + "px",
+    top: pxTovh(mainPoint2.offsetHeight + document.getElementById('extra-fact1-1').offsetHeight) + pointPaddingVh + 2 + "vh",
   }, getTimePosition("firstStop") + animDurations["firstStop"]/4);
 
   timeline.add({
@@ -545,7 +546,7 @@ function createFinalTimeline()
     timeline.add({
       duration: animDurations["secondStop"]/1.5,
       targets: '#extra-fact2',
-      top: 25 + "vh",
+      top: mainPoint2.offsetHeight + vhToPx(pointPaddingVh) + "px"
     }, getTimePosition("secondStop"));
 
     timeline.add({
@@ -595,7 +596,21 @@ function createFinalTimeline()
       duration:animDurations["panOutToCity"]/3,
       targets: "#learn-more",
       opacity: 1,
+      changeBegin: function()
+      {
+        document.getElementById("learn-more").style.top = mainPoint3.offsetHeight + "px";
+      }
     }, getTimePosition("panOutToCity") + 2*animDurations["panOutToCity"]/3);
+}
+
+function vhToPx(vh)
+{
+  return vh / 100 * document.documentElement.clientHeight;
+}
+
+function pxTovh(pixels)
+{
+  return pixels / document.documentElement.clientHeight * 100;
 }
 
 var prevTime = 0;
@@ -716,8 +731,11 @@ window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
 
+
+var pointPaddingVh = 10;
 function handleMobileAspect()
 {
+  pointPaddingVh = 0;
   rotFactor = 2;
   camera.zoom = .7;
   camera.fov = 95;
@@ -727,19 +745,20 @@ function handleMobileAspect()
   camera.updateWorldMatrix();
   initialCameraZ = 2.25;
   const textBoxes = document.querySelectorAll('.textbox');
-  textBoxes.forEach(tb =>{
+  textBoxes.forEach(tb => {
     tb.style.width = "30vw";
     tb.style.fontSize = "100%";
   });
   const banners = document.querySelectorAll('.banner-point');
-  banners.forEach(b =>{
+  banners.forEach(b => { 
     b.style.width = "75vw";
-    b.style.fontSize = "200%";
+    b.style.fontSize = "175%";
   });
 }
 
 function handleDefautlAspect()
 {
+  pointPaddingVh = 10;
   rotFactor = 1;
   camera.zoom = 1;
   camera.fov = 75;

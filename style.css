@@ -96,7 +96,6 @@ p
   position: fixed;
   opacity: 0;
   z-index: 2;
-  top: 20vh;
 }
 
 .banner-point
@@ -137,7 +136,6 @@ p
 {
   top: 115vh;
   position: fixed;
-  right: 10px;
   opacity: 1.0;
 }
 
