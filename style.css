@@ -32,6 +32,8 @@ p
 .next-btn
 {
   float: right;
+  background-color: #F9F1E6;
+  color: #003D29;
   border: 0;
   width: 5vh;
   height: 5vh;
@@ -42,6 +44,8 @@ p
 .prev-btn
 {
   float: left;
+  background-color: #F9F1E6;
+  color: #003D29;
   border: 0;
   width: 5vh;
   height: 5vh;
