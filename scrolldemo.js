@@ -754,6 +754,8 @@ function handleMobileAspect()
     b.style.width = "75vw";
     b.style.fontSize = "175%";
   });
+  mainPoint1.style.width = "40vw";
+  mainPoint1.style.left = "5vw";
 }
 
 function handleDefautlAspect()

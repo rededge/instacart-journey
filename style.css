@@ -26,27 +26,27 @@ p
   padding-left: 1.5vh;
   padding-right: 1.5vh;
   padding-bottom: 1.5vh;
-  height: 4vh;
+  height: 5vh;
 }
 
 .next-btn
 {
   float: right;
   border: 0;
-  width: 4vh;
-  height: 4vh;
+  width: 5vh;
+  height: 5vh;
   border-radius: 60%;
-  font-size: 120%;
+  font-size: 125%;
 }
 
 .prev-btn
 {
   float: left;
   border: 0;
-  width: 4vh;
-  height: 4vh;
+  width: 5vh;
+  height: 5vh;
   border-radius: 60%;
-  font-size: 120%;
+  font-size: 125%;
 }
 
 #main-point3
