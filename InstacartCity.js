@@ -11,9 +11,9 @@ import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import starUrl from './star.png';
 import carUrl from './Instacart_Project_car.gltf';
-import hilightBuildings from './Instacart_Project_residential.gltf';
+import hilightBuildingsUrl from './Instacart_Project_residential_v2.gltf';
+import houseUrl from './Instacart_Project_house.gltf';
 import city from './Instacart_Project_Background.gltf';
-import { RGBA_ASTC_5x4_Format } from 'three';
 
 
 
@@ -195,7 +195,7 @@ scene.add( sphere );
 sphere.position.set(0,20,0);
 */
 
-loader.load("/Instacart_Project_Background.gltf", function (gltf) {
+loader.load(city, function (gltf) {
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
@@ -209,7 +209,7 @@ loader.load("/Instacart_Project_Background.gltf", function (gltf) {
   cityGroup.add(gltf.scene);
 });
 
-loader.load("/Instacart_Project_residential_v2.gltf", function (gltf) {
+loader.load(hilightBuildingsUrl, function (gltf) {
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
@@ -229,7 +229,7 @@ loader.load("/Instacart_Project_residential_v2.gltf", function (gltf) {
 });
 
 var deliveryHouse = new THREE.Scene();
-loader.load("/Instacart_Project_house.gltf", function (gltf) {
+loader.load(houseUrl, function (gltf) {
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
