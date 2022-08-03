@@ -74,19 +74,6 @@ p
   z-index: 2;
 }
 
-#learn-more-btn 
-{
-  background-color: #003D29;
-  color: #F9F1E6;
-  border: 0;
-  font-size: 120%;
-  height: 100%;
-  width: 100%;
-  padding: 2vh;
-  margin: 0;
-  position: relative;
-}
-
 #main-point1
 {
   bottom: 60vh;
@@ -97,9 +84,34 @@ p
 
 #learn-more
 {
+  border-radius: 20px;
+  width: 200px;
+  height: 75px;
   position: fixed;
   opacity: 0;
   z-index: 2;
+  left: 50%;
+  top: 77%;
+  background-color: #a0b5c3;
+  transform: translate(-50%, 0%);
+}
+
+#learn-more-btn 
+{
+  border-radius: 20px;
+  background-color: #003D29;
+  color: #F9F1E6;
+  border: 0;
+  font-size: 120%;
+  height: 100%;
+  width: 100%;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  justify-content: center;
+  padding: 2vh;
+  margin: 0;
+  position: relative;
 }
 
 .banner-point
