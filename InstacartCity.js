@@ -7,15 +7,12 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { InteractionManager } from "three.interactive";
 import Stats from 'three/examples/jsm/libs/stats.module'
 import anime from 'animejs/lib/anime.es.js';
-import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import starUrl from './star.png';
 import carUrl from './Instacart_Project_car.gltf';
 import hilightBuildingsUrl from './Instacart_Project_residential_v2.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
 import city from './Instacart_Project_Background.gltf';
-
-
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
@@ -26,7 +23,6 @@ var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
 var rotFactor = 1;
-
 
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
@@ -75,23 +71,19 @@ const renderer = createRenderer();
 const scene = createScene();
 const camera = createCamera(3);
 
-
-camera.position.set(48, 45.5, 46);
-camera.rotation.set(-.85, .60, .57);
-var initialCameraZ = 26;
+var initialCameraPos = new THREE.Vector3(55.4, 50.8, 54.2);
+var initialCameraRot = new THREE.Vector3(-1.076, .442, .672);
 
 const light = createLight();
-light.castShadow = true;
-light.position.set(20,20,20);
-light.shadow.mapSize.width = 512; // default
-light.shadow.mapSize.height = 512; // default
-light.shadow.camera.near = 0.5; // default
-light.shadow.camera.far = 500; // default
-const ambLight = new THREE.AmbientLight(0xffffff, .7);
+const ambLight = new THREE.AmbientLight(0xffffff, .6);
 scene.add(light);
 scene.add(ambLight);
 window.onresize = resize;
 resize();
+
+camera.position.set(initialCameraPos.x, initialCameraPos.y, initialCameraPos.z);
+camera.rotation.set(initialCameraRot.x, initialCameraRot.y, initialCameraRot.z);
+var initialCameraZ = 26;
 
 var _event = 
 {
@@ -153,10 +145,8 @@ function lerp(a, b, t)
   return ((1 - t) * a + t * b);
 }
 
-let composer = new EffectComposer( renderer );
 
-const renderPass = new RenderPass( scene, camera );
-composer.addPass( renderPass );
+
 
 
 const interactionManager = new InteractionManager(
@@ -175,7 +165,8 @@ var residentialColors = [];
 var houseMats = [];
 var houseColors = [];
 var saturationFactor = 0;
-var lightFactor = .8;
+var greyValue = .6;
+var lightFactor = 1;
 
 const fourTone = new THREE.TextureLoader().load('fourTone.jpg');
 const threeTone = new THREE.TextureLoader().load('threeTone.jpg');
@@ -215,16 +206,16 @@ loader.load(hilightBuildingsUrl, function (gltf) {
   gltf.scene.scale.set(.03,.03,.03);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
   gltf.scene.traverse((o) => {
-    if (o.isMesh && !residentialMats.includes(o.material)) {
+    if (o.isMesh && (!residentialMats.includes(o.material) || !cityMats.includes(o.material))) {
       let hsl = {};
       o.material.color.getHSL(hsl);
-      o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, hsl.l * lightFactor);
+      o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, greyValue);
       residentialMats.push(o.material);
+      cityMats.push(o.material);
+      cityColors.push(new THREE.Color(o.material.color.getHex()));
       residentialColors.push(hsl);
     }
   });
-  console.log(residentialMats.length);
-  console.log(residentialColors.length);
   cityGroup.add(gltf.scene);
 });
 
@@ -238,7 +229,7 @@ loader.load(houseUrl, function (gltf) {
     if (o.isMesh && !houseMats.includes(o.material)) {
       let hsl = {};
       o.material.color.getHSL(hsl);
-      o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, hsl.l * lightFactor);
+      o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, greyValue);
       houseMats.push(o.material);
       houseColors.push(hsl);
     }
@@ -271,9 +262,9 @@ phoneSceneGroup.position.set(-20000, 20000, 20000);
 scene.add(phoneSceneGroup);
 var phoneCase = createCube({ color: 0xa1a1a1, x: 10, y: -1, z: -5});
 phoneCase.scale.set(2, 4, .25);
-var phoneLight = createLight();
-phoneLight.position.set(10, 5, 0);
-phoneSceneGroup.add(phoneLight);
+//var phoneLight = createLight();
+//phoneLight.position.set(10, 5, 0);
+//phoneSceneGroup.add(phoneLight);
 phoneSceneGroup.add(phoneCase);
 var starGeo = new THREE.BufferGeometry();
 var verts = new Float32Array(1800);
@@ -482,7 +473,7 @@ document.getElementById("learn-more-btn").onclick = function()
 
 function initTimeline() 
 {
-  document.body.style.overflow = "auto";
+  document.body.style.overflow = "scroll";
   timeline = anime.timeline({
     autoplay: false,
     duration: timelineLength,
@@ -536,7 +527,7 @@ function createFinalTimeline()
 
   //camera after stop 1
   timeline.add({
-    duration: 3 * animDurations["firstStop"]/4,
+    duration: animDurations["firstStop"]/2,
     easing: "easeInOutSine",
     targets: [camera.rotation],
     x: -.2,
@@ -571,40 +562,40 @@ function createFinalTimeline()
     }, getTimePosition("secondStop"));
     
     timeline.add({
-      duration: animDurations["secondStop"] / 2,
+      duration: animDurations["secondStop"] / 3,
       change: function(anim) {
         for (let i = 0; i < houseMats.length; i++) {
           let currSat = lerp(houseColors[i].s * saturationFactor, houseColors[i].s, anim.progress / 100);
-          let currLit = lerp(houseColors[i].l * lightFactor, houseColors[i].l, anim.progress / 100);
+          let currLit = lerp(greyValue, houseColors[i].l, anim.progress / 100);
           houseMats[i].color.setHSL(houseColors[i].h, currSat, currLit);
         }
       }
     }, getTimePosition("secondStop") + animDurations["secondStop"]/2);
 
     timeline.add({
-      duration: animDurations["secondStop"]/2,
+      duration: 3*animDurations["secondStop"]/4,
       targets: [camera.rotation],
       y: -.4 * rotFactor,
       x: -.1
-    }, getTimePosition("secondStop") + animDurations["secondStop"]/2);
+    }, getTimePosition("secondStop"));
 
     timeline.add({
       duration: animDurations["panOutToCity"]/3,
       targets: ['#extra-fact2', "#main-point2"],
       opacity: 0,
-    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/3);
+    }, getTimePosition("panOutToCity"));
 
     timeline.add({
-      duration: 2*animDurations["panOutToCity"] / 3,
+      duration: animDurations["panOutToCity"] / 2,
       change: function(anim) {
         for (let i = 0; i < residentialMats.length; i++) {
           let currSat = lerp(residentialColors[i].s * saturationFactor, residentialColors[i].s, anim.progress / 100);
-          let currLit = lerp(residentialColors[i].l * lightFactor, residentialColors[i].l, anim.progress / 100);
+          let currLit = lerp(greyValue, residentialColors[i].l, anim.progress / 100);
           residentialMats[i].color.setHSL(residentialColors[i].h, currSat, currLit);
         }
       }
       
-    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/3);
+    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/2);
 
     timeline.add({
       duration: animDurations["panOutToCity"],
@@ -623,7 +614,7 @@ function createFinalTimeline()
     timeline.add({
       duration: animDurations["panOutToCity"]/3,
       targets: ["#main-point3"],
-      easing: 'easeOutElastic(10, .65)',
+      easing: 'easeOutElastic(5, .65)',
       bottom: window.innerHeight - (mainPoint3.offsetHeight) + "px",
     }, getTimePosition("panOutToCity")+ animDurations["panOutToCity"]/3);
     timeline.add({
@@ -653,8 +644,6 @@ var starBuff = starGeo.getAttribute('position');
 var finalTimeline = false;
 animate((time) => 
 {
-  //console.log("rot " + camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
-  //console.log("pos " + camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
   if (!finalTimeline && window.scrollY / maxHeight > .04)
@@ -686,12 +675,12 @@ animate((time) =>
       stars.material.opacity += .0025;
   }
   stats.update();
-  composer.render();
+  renderer.render(scene, camera);
 });
 
 function createRenderer() 
 {
-  const renderer = new THREE.WebGLRenderer({ canvas: canv, antialias: false });
+  const renderer = new THREE.WebGLRenderer({ canvas: canv, antialias: true });
   renderer.setPixelRatio(window.devicePixelRatio);
   renderer.setSize(window.innerWidth, window.innerHeight);
   return renderer;
@@ -737,8 +726,9 @@ function animate(callback)
   
 function createLight() 
 {
-  const light = new THREE.PointLight(0xffffff, .5, 1000);
-  light.position.set(0, 50, 90);
+  const light = new THREE.DirectionalLight(0xffffff, .6, 1000);
+  //light.position.set(-50, 50, 50);
+  light.position.set(0, 50, 100);
   return light;
 }
 
@@ -761,9 +751,10 @@ window.onbeforeunload = function () {
   window.scrollTo(0, 0);
 }
 
-
 function handleMobileAspect()
 {
+  initialCameraPos = new THREE.Vector3(43.76, 29.96, 43.1);
+  initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
   rotFactor = 2;
   camera.zoom = .7;
   camera.fov = 95;
@@ -782,8 +773,8 @@ function handleMobileAspect()
     b.style.width = "75vw";
     b.style.fontSize = "175%";
   });
-  mainPoint1.style.width = "40vw";
-  mainPoint1.style.left = "5vw";
+  mainPoint1.style.width = "80vw";
+  mainPoint1.fontSize = "100%";
 }
 
 function handleDefautlAspect()
