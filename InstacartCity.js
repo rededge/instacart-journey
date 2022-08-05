@@ -96,9 +96,9 @@ var percentage = 0;
 var divContainer = document.querySelector('.container')
 // container height - window height to limit the scroll at the top of the screen when we are at the bottom of the container
 var maxHeight = ((divContainer.clientHeight || divContainer.offsetHeight) - window.innerHeight);
-divContainer.addEventListener('wheel', onWheel, { passive: false });
-divContainer.addEventListener('touchmove', onTouchMove, { passive: false });
-divContainer.addEventListener('touchstart', onTouchStart, { passive: false });
+document.body.addEventListener('wheel', onWheel, { passive: false });
+document.body.addEventListener('touchmove', onTouchMove, { passive: false });
+document.body.addEventListener('touchstart', onTouchStart, { passive: false });
 
 var touchStartY = 0;
 
@@ -108,34 +108,30 @@ function onTouchStart (e) {
 }
 
 function onTouchMove (e) {
-  var evt = _event;
   var t = (e.targetTouches) ? e.targetTouches[0] : e;
   // the multiply factor on mobile must be about 10x the factor applied on the wheel
-  evt.deltaY = (t.pageY - touchStartY) * 5;
+  _event.deltaY = (t.pageY - touchStartY) * 5;
   touchStartY = t.pageY;
   scroll(e)
 }
 
 function onWheel (e)
 {
-  var evt = _event;
-  evt.deltaY = e.wheelDeltaY || e.deltaY * -1;
+  _event.deltaY = e.wheelDeltaY || e.deltaY * -1;
   // reduce by half the delta amount otherwise it scroll too fast (in a other way we could increase the height of the container too)
-  evt.deltaY *= 0.5;
+  _event.deltaY *= 0.5;
   scroll(e);
 };
 
-function scroll (e) 
-{
-  var evt = _event;
-  if ((evt.y + evt.deltaY) > 0 ) {
-    evt.y = 0;
-  } 
-  else if ((-(evt.y + evt.deltaY)) >= maxHeight) {
-    evt.y = -maxHeight;
-  } 
-  else {
-      evt.y += evt.deltaY;
+function scroll (e) {
+  // limit scroll top
+  if ((_event.y + _event.deltaY) > 0 ) {
+    _event.y = 0;
+  // limit scroll bottom
+  } else if ((-(_event.y + _event.deltaY)) >= maxHeight) {
+    _event.y = -maxHeight;
+  } else {
+      _event.y += _event.deltaY;
   }
 }
 
@@ -144,7 +140,6 @@ function lerp(a, b, t)
 {
   return ((1 - t) * a + t * b);
 }
-
 
 
 
@@ -646,12 +641,12 @@ animate((time) =>
 {
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
-  if (!finalTimeline && window.scrollY / maxHeight > .04)
+  if (!finalTimeline && -_event.y / maxHeight > .04)
   {
     finalTimeline = true;
     createFinalTimeline();
   }
-  percentage = lerp(percentage, window.scrollY, .03);  
+  percentage = lerp(percentage, -_event.y, .03);  
   var timelinePoint =  timelineLength * (percentage / maxHeight);
   if (timeline) {
     timeline.seek(timelinePoint);
