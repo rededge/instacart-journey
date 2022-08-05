@@ -120,15 +120,14 @@ function onWheel (e)
 };
 
 function scroll (e) {
-  var evt = _event;
   // limit scroll top
-  if ((evt.y + evt.deltaY) > 0 ) {
-    evt.y = 0;
+  if ((_event.y + _event.deltaY) > 0 ) {
+    _event.y = 0;
   // limit scroll bottom
-  } else if ((-(evt.y + evt.deltaY)) >= maxHeight) {
-    evt.y = -maxHeight;
+  } else if ((-(_event.y + _event.deltaY)) >= maxHeight) {
+    _event.y = -maxHeight;
   } else {
-      evt.y += evt.deltaY;
+      _event.y += _event.deltaY;
   }
 }
 
@@ -137,10 +136,6 @@ function lerp(a, b, t)
 {
   return ((1 - t) * a + t * b);
 }
-
-
-
-
 
 const interactionManager = new InteractionManager(
   renderer,
