@@ -96,6 +96,7 @@ var percentage = 0;
 var divContainer = document.querySelector('.container')
 // container height - window height to limit the scroll at the top of the screen when we are at the bottom of the container
 var maxHeight = ((divContainer.clientHeight || divContainer.offsetHeight) - window.innerHeight);
+/*
 document.body.addEventListener('wheel', onWheel, { passive: false });
 document.body.addEventListener('touchmove', onTouchMove, { passive: false });
 document.body.addEventListener('touchstart', onTouchStart, { passive: false });
@@ -134,6 +135,7 @@ function scroll (e) {
       _event.y += _event.deltaY;
   }
 }
+*/
 
 // linear interpolation function
 function lerp(a, b, t) 
