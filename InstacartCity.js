@@ -594,9 +594,9 @@ animate((time) =>
 {
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
-  console.log(_event.y);
-  console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
-  console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
+  //console.log(_event.y);
+  //console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
+  //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
   percentage = lerp(percentage, -_event.y, .03);
   var timelinePoint =  timelineLength * (percentage / maxHeight);
   if (timeline) {
