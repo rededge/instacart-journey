@@ -641,12 +641,12 @@ animate((time) =>
 {
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
-  if (!finalTimeline && -_event.y / maxHeight > .04)
+  if (!finalTimeline && window.scrollY / maxHeight > .04)
   {
     finalTimeline = true;
     createFinalTimeline();
   }
-  percentage = lerp(percentage, -_event.y, .03);  
+  percentage = lerp(percentage, window.scrollY, .03);
   var timelinePoint =  timelineLength * (percentage / maxHeight);
   if (timeline) {
     timeline.seek(timelinePoint);
