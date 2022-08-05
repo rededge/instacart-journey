@@ -14,6 +14,7 @@ import hilightBuildingsUrl from './Instacart_Project_residential_v3.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
 import city from './Instacart_Project_Background1.gltf';
 import phoneUrl from './Phone.gltf'
+import { AmbientLight } from 'three';
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
@@ -272,10 +273,15 @@ var cameraPanInAnim = anime({
   easing: 'easeInOutSine',
   duration: 2500,
   autoplay: false,
-  x: .2,
+  x: 0,
   y: 3.5,
   z: initialCameraZ,
-  complete: initTimeline
+  complete: initTimeline,
+  change: function(anim)
+  {
+    camera.near = lerp(10, .5, anim.progress/100);
+    console.log(camera.near);
+  }
 });
 
 var cameraRotateInAnim = anime({
@@ -557,6 +563,13 @@ function initTimeline()
       x:  -48.5,
       y: 44,
       z: 47.6,
+      change: function(anim)
+      {
+        console.log("change " + anim.progress)
+        if (anim.progress > 60) {
+          camera.near = lerp(1.75, 10, anim.progress/100);
+        }
+      }
     }, getTimePosition("panOutToCity"));
     timeline.add({
       duration: animDurations["panOutToCity"],
@@ -597,8 +610,7 @@ var starFlyTime = 1;
 var starBuff = starGeo.getAttribute('position');
 animate((time) => 
 {
-  fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
-  prevTime = time;
+  console.log(camera.near);
   //console.log(_event.y);
   //console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
   //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
@@ -637,25 +649,25 @@ function createRenderer()
   return renderer;
 }
 
-function createScene() 
-{
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0xF9F1E6);
-  //scene.background = new THREE.Color(0x6be6ff);
-  return scene;
-}
+  function createScene() 
+  {
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0xF9F1E6);
+    //scene.background = new THREE.Color(0x6be6ff);
+    return scene;
+  }
   
-function createCamera(zPos) 
-{
-  const camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    1,
-    4000
-  );
-  camera.position.z = zPos;
-  return camera;
-}
+  function createCamera(zPos) 
+  {
+    const camera = new THREE.PerspectiveCamera(
+      75,
+      window.innerWidth / window.innerHeight,
+      2,
+      4000
+    );
+    camera.position.z = zPos;
+    return camera;
+  }
   
   function createCube({ color, x, y, z}) 
   {
@@ -666,79 +678,79 @@ function createCamera(zPos)
     return cube;
   }
   
-function animate(callback) 
-{
-  function loop(time) 
+  function animate(callback) 
   {
-    callback(time);
+    function loop(time) 
+    {
+      callback(time);
+      requestAnimationFrame(loop);
+    }
     requestAnimationFrame(loop);
   }
-  requestAnimationFrame(loop);
-}
   
-function createLight() 
-{
-  const light = new THREE.DirectionalLight(0xffffff, .6, 1000);
-  //light.position.set(-50, 50, 50);
-  light.position.set(0, 50, 100);
-  return light;
-}
+  function createLight() 
+  {
+    const light = new THREE.DirectionalLight(0xffffff, .6, 1000);
+    //light.position.set(-50, 50, 50);
+    light.position.set(0, 50, 100);
+    return light;
+  }
 
-function resize () 
-{
-  renderer.width = window.innerWidth;
-  renderer.height = window.innerHeight;
-  renderer.setSize(renderer.width, renderer.height);
-  let aspect = renderer.width / renderer.height;
-  camera.aspect = aspect;
-  if (aspect < 1)
-    handleMobileAspect();
-  else
-    handleDefautlAspect();
-  camera.updateProjectionMatrix();
-}
+  function resize () 
+  {
+    renderer.width = window.innerWidth;
+    renderer.height = window.innerHeight;
+    renderer.setSize(renderer.width, renderer.height);
+    let aspect = renderer.width / renderer.height;
+    camera.aspect = aspect;
+    if (aspect < 1)
+      handleMobileAspect();
+    else
+      handleDefautlAspect();
+    camera.updateProjectionMatrix();
+  }
 
 
-window.onbeforeunload = function () {
-  window.scrollTo(0, 0);
-}
+  window.onbeforeunload = function () {
+    window.scrollTo(0, 0);
+  }
 
-function handleMobileAspect()
-{
-  initialCameraPos = new THREE.Vector3(43.76, 29.96, 43.1);
-  initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
-  rotFactor = 2;
-  camera.zoom = .7;
-  camera.fov = 95;
-  camera.updateMatrix();
-  camera.updateMatrixWorld();
-  camera.updateProjectionMatrix();
-  camera.updateWorldMatrix();
-  //initialCameraZ = 2.25;
-  const textBoxes = document.querySelectorAll('.textbox');
-  textBoxes.forEach(tb => {
-    tb.style.width = "30vw";
-    tb.style.fontSize = "100%";
-  });
-  const banners = document.querySelectorAll('.banner-point');
-  banners.forEach(b => { 
-    b.style.width = "75vw";
-    b.style.fontSize = "175%";
-  });
-  mainPoint1.style.width = "80vw";
-  mainPoint1.fontSize = "100%";
-}
+  function handleMobileAspect()
+  {
+    initialCameraPos = new THREE.Vector3(43.76, 29.96, 43.1);
+    initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
+    rotFactor = 2;
+    camera.zoom = .7;
+    camera.fov = 95;
+    camera.updateMatrix();
+    camera.updateMatrixWorld();
+    camera.updateProjectionMatrix();
+    camera.updateWorldMatrix();
+    //initialCameraZ = 2.25;
+    const textBoxes = document.querySelectorAll('.textbox');
+    textBoxes.forEach(tb => {
+      tb.style.width = "30vw";
+      tb.style.fontSize = "100%";
+    });
+    const banners = document.querySelectorAll('.banner-point');
+    banners.forEach(b => { 
+      b.style.width = "75vw";
+      b.style.fontSize = "175%";
+    });
+    mainPoint1.style.width = "80vw";
+    mainPoint1.fontSize = "100%";
+  }
 
-function handleDefautlAspect()
-{
-  rotFactor = 1;
-  camera.zoom = 1;
-  camera.fov = 75;
-  //initialCameraZ = 3;
-  const textBoxes = document.querySelectorAll('.textbox');
-  textBoxes.forEach(tb =>{
-    tb.style.width = "12.5vw";
-    tb.style.fontSize = "150%";
-  });
-}
+  function handleDefautlAspect()
+  {
+    rotFactor = 1;
+    camera.zoom = 1;
+    camera.fov = 75;
+    //initialCameraZ = 3;
+    const textBoxes = document.querySelectorAll('.textbox');
+    textBoxes.forEach(tb =>{
+      tb.style.width = "12.5vw";
+      tb.style.fontSize = "150%";
+    });
+  }
 
