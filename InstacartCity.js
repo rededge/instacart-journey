@@ -10,9 +10,9 @@ import anime from 'animejs/lib/anime.es.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import starUrl from './star.png';
 import carUrl from './Instacart_Project_car.gltf';
-import hilightBuildingsUrl from './Instacart_Project_residential_v2.gltf';
+import hilightBuildingsUrl from './Instacart_Project_residential_v3.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
-import city from './Instacart_Project_Background.gltf';
+import city from './Instacart_Project_Background1.gltf';
 import phoneUrl from './Phone.gltf'
 
 const stats = Stats()
