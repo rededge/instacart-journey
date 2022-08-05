@@ -29,17 +29,13 @@ let p1Idx =  0;
 
 mainPoint1.querySelector(".next-btn").onclick = function()
 {
-  if (p1Idx < point1Ps.length - 1)
+  if (p1Idx <= point1Ps.length - 1)
     p1Idx++;
   mainPoint1.querySelector(".prev-btn").style.display = "block";
-  if (p1Idx == point1Ps.length - 1)
+  if (p1Idx == point1Ps.length)
   {
-
-    mainPoint1.querySelector(".next-btn").style.display = "none";
-    flashCityAnim.play();
-    cityGroup.addEventListener("mouseover", highlight);
-    cityGroup.addEventListener("mouseout", unhighlight);
-    cityGroup.addEventListener("click", cityClickHandler);
+    cityClickHandler();
+    return;
   }
   for (let i = 0; i < point1Ps.length; i++)
   {
@@ -71,8 +67,8 @@ const renderer = createRenderer();
 const scene = createScene();
 const camera = createCamera(3);
 
-var initialCameraPos = new THREE.Vector3(55.4, 50.8, 54.2);
-var initialCameraRot = new THREE.Vector3(-1.076, .442, .672);
+var initialCameraPos = new THREE.Vector3(42.8, 34.5, 42.5);
+var initialCameraRot = new THREE.Vector3(-1.023, .473, .641);
 
 const light = createLight();
 const ambLight = new THREE.AmbientLight(0xffffff, .6);
@@ -96,9 +92,9 @@ var percentage = 0;
 var divContainer = document.querySelector('.container')
 // container height - window height to limit the scroll at the top of the screen when we are at the bottom of the container
 var maxHeight = ((divContainer.clientHeight || divContainer.offsetHeight) - window.innerHeight);
-divContainer.addEventListener('wheel', onWheel, { passive: false });
-divContainer.addEventListener('touchmove', onTouchMove, { passive: false });
-divContainer.addEventListener('touchstart', onTouchStart, { passive: false });
+document.body.addEventListener('wheel', onWheel, { passive: false });
+document.body.addEventListener('touchmove', onTouchMove, { passive: false });
+document.body.addEventListener('touchstart', onTouchStart, { passive: false });
 
 var touchStartY = 0;
 
@@ -108,33 +104,30 @@ function onTouchStart (e) {
 }
 
 function onTouchMove (e) {
-  var evt = _event;
   var t = (e.targetTouches) ? e.targetTouches[0] : e;
   // the multiply factor on mobile must be about 10x the factor applied on the wheel
-  evt.deltaY = (t.pageY - touchStartY) * 5;
+  _event.deltaY = (t.pageY - touchStartY) * 5;
   touchStartY = t.pageY;
   scroll(e)
 }
 
 function onWheel (e)
 {
-  var evt = _event;
-  evt.deltaY = e.wheelDeltaY || e.deltaY * -1;
+  _event.deltaY = e.wheelDeltaY || e.deltaY * -1;
   // reduce by half the delta amount otherwise it scroll too fast (in a other way we could increase the height of the container too)
-  evt.deltaY *= 0.5;
+  _event.deltaY *= 0.5;
   scroll(e);
 };
 
-function scroll (e) 
-{
+function scroll (e) {
   var evt = _event;
+  // limit scroll top
   if ((evt.y + evt.deltaY) > 0 ) {
     evt.y = 0;
-  } 
-  else if ((-(evt.y + evt.deltaY)) >= maxHeight) {
+  // limit scroll bottom
+  } else if ((-(evt.y + evt.deltaY)) >= maxHeight) {
     evt.y = -maxHeight;
-  } 
-  else {
+  } else {
       evt.y += evt.deltaY;
   }
 }
@@ -158,8 +151,8 @@ var cityGroup = new THREE.Group();
 scene.add(cityGroup);
 var loader = new GLTFLoader();
 
-var cityMats = [];
-var cityColors = [];
+//var cityMats = [];
+//var cityColors = [];
 var residentialMats = [];
 var residentialColors = [];
 var houseMats = [];
@@ -191,12 +184,12 @@ loader.load(city, function (gltf) {
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
+  /*
   gltf.scene.traverse((o) => {
-    if (o.isMesh && !cityMats.includes(o.material)) {
-      cityMats.push(o.material);
-      cityColors.push(new THREE.Color(o.material.color.getHex()));
+    if (o.isMesh)) {
     }
   });
+  */
   cityGroup.add(gltf.scene);
 });
 
@@ -206,13 +199,11 @@ loader.load(hilightBuildingsUrl, function (gltf) {
   gltf.scene.scale.set(.03,.03,.03);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
   gltf.scene.traverse((o) => {
-    if (o.isMesh && (!residentialMats.includes(o.material) || !cityMats.includes(o.material))) {
+    if (o.isMesh && (!residentialMats.includes(o.material))) {
       let hsl = {};
       o.material.color.getHSL(hsl);
       o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, greyValue);
       residentialMats.push(o.material);
-      cityMats.push(o.material);
-      cityColors.push(new THREE.Color(o.material.color.getHex()));
       residentialColors.push(hsl);
     }
   });
@@ -244,12 +235,13 @@ var car = new THREE.Scene();
 loader.load(carUrl, function (gltf) {
   scene.add(gltf.scene);
   car = gltf.scene;
+  /*
   car.traverse((o) => {
-    if (o.isMesh && !cityMats.includes(o.material)) {
-      cityMats.push(o.material);
-      cityColors.push(new THREE.Color(o.material.color.getHex()));
+    if (o.isMesh) {
+      
     }
   });
+  */
   car.scale.set(.03,.03,.03);
   car.position.set(0, 0, initialCarZ);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
@@ -285,38 +277,7 @@ var starMaterial = new THREE.PointsMaterial({
 });
 let stars = new THREE.Points(starGeo, starMaterial);
 phoneSceneGroup.add(stars);
-var currCityBrightness = 0;
-function highlight()
-{
-  flashCityAnim.pause();
-  changeCityBrightness(.3);
-}
 
-function unhighlight()
-{
-  flashCityAnim.restart();
-  flashCityAnim.play();
-}
-
-function changeCityBrightness(value)
-{
-  let factor = 1 + value;
-  for (let c = 0; c < cityMats.length; c++)
-  {
-    cityMats[c].color.r = cityColors[c].r * factor;
-    cityMats[c].color.g = cityColors[c].g * factor;
-    cityMats[c].color.b = cityColors[c].b * factor;
-  }
-}
-
-var flashCityAnim = anime({
-  duration: 2250,
-  loop: true,
-  autoplay: false,
-  update: function(anim) {
-    changeCityBrightness(.15 * Math.sin((2*Math.PI * anim.progress)/100) + .05);
-  }
-});
 
 var cameraPanInAnim = anime({
   targets: [camera.position],
@@ -352,12 +313,7 @@ function cityClickHandler()
   cameraPanInAnim.play();
   cameraRotateInAnim.play();
   fadeMainPointAnim.play();
-  unhighlight();
   cityGroup.removeEventListener("click", cityClickHandler);
-  cityGroup.removeEventListener("mouseover", highlight);
-  cityGroup.removeEventListener("mouseout", unhighlight);
-  flashCityAnim.pause();
-  changeCityBrightness(-currCityBrightness);
   canv.style.zIndex = -1;
 }
 interactionManager.add(cityGroup);
@@ -473,7 +429,14 @@ document.getElementById("learn-more-btn").onclick = function()
 
 function initTimeline() 
 {
+  anime({
+    targets: "#scroll-instructions",
+    duration: 1000,
+    easing: 'easeOutElastic(7 , .65)',
+    bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
+  });
   document.body.style.overflow = "scroll";
+  
   timeline = anime.timeline({
     autoplay: false,
     duration: timelineLength,
@@ -482,10 +445,16 @@ function initTimeline()
 
   //camera before stop 1
   timeline.add({
+    targets: "#scroll-instructions",
+    duration: animDurations["beforeFirstStop"]/5,
+    opacity: 0,
+  }, getTimePosition("beforeFirstStop"));
+
+  timeline.add({
     targets: [camera.position],
     z: initialCameraZ + -23,
     duration: animDurations["beforeFirstStop"],
-  });
+  }, getTimePosition("beforeFirstStop"));
 
   //car before stop 1
   timeline.add({ 
@@ -493,10 +462,7 @@ function initTimeline()
     z: initialCarZ + -23,
     duration: animDurations["beforeFirstStop"],
   }, getTimePosition("beforeFirstStop"));
-}
 
-function createFinalTimeline()
-{
   timeline.add({ 
     targets: ["#main-point2"],
     easing: 'easeOutElastic(4, .65)',
@@ -586,7 +552,7 @@ function createFinalTimeline()
     }, getTimePosition("panOutToCity"));
 
     timeline.add({
-      duration: animDurations["panOutToCity"] / 2,
+      duration: animDurations["panOutToCity"] / 2.5,
       change: function(anim) {
         for (let i = 0; i < residentialMats.length; i++) {
           let currSat = lerp(residentialColors[i].s * saturationFactor, residentialColors[i].s, anim.progress / 100);
@@ -595,7 +561,7 @@ function createFinalTimeline()
         }
       }
       
-    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/2);
+    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/3);
 
     timeline.add({
       duration: animDurations["panOutToCity"],
@@ -641,17 +607,14 @@ var updateStars = false;
 var starFlyTime = 1;
 
 var starBuff = starGeo.getAttribute('position');
-var finalTimeline = false;
 animate((time) => 
 {
   fps.innerHTML = "fps: " +  Math.round(1000 / (time - prevTime));
   prevTime = time;
-  if (!finalTimeline && window.scrollY / maxHeight > .04)
-  {
-    finalTimeline = true;
-    createFinalTimeline();
-  }
-  percentage = lerp(percentage, window.scrollY, .03);  
+  console.log(_event.y);
+  console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
+  console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
+  percentage = lerp(percentage, -_event.y, .03);
   var timelinePoint =  timelineLength * (percentage / maxHeight);
   if (timeline) {
     timeline.seek(timelinePoint);
@@ -690,6 +653,7 @@ function createScene()
 {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0xF9F1E6);
+  //scene.background = new THREE.Color(0x6be6ff);
   return scene;
 }
   

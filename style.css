@@ -1,17 +1,15 @@
 html
 {
-  width: 100%;
-  display: flex;
-  flex-direction:column;
+  overflow: hidden;
 }
 
 body
 {
   margin: 0;
   padding: 0;
-  height: 100%;
-  overflow: hidden;
-  flex-grow:1;
+  position: fixed;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch; 
 }
 
 canvas
@@ -171,7 +169,7 @@ p
 
 .container
 {
-  height: 1200vh;
+  height: 3000vh;
   position: relative;
 }
 
