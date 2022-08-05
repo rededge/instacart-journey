@@ -13,6 +13,7 @@ import carUrl from './Instacart_Project_car.gltf';
 import hilightBuildingsUrl from './Instacart_Project_residential_v2.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
 import city from './Instacart_Project_Background.gltf';
+import phoneUrl from './Phone.gltf'
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
@@ -69,6 +70,8 @@ const camera = createCamera(3);
 
 var initialCameraPos = new THREE.Vector3(42.8, 34.5, 42.5);
 var initialCameraRot = new THREE.Vector3(-1.023, .473, .641);
+//var initialCameraPos = new THREE.Vector3(-20000, 20000, 20000);
+//var initialCameraRot = new THREE.Vector3(0,0,0);
 
 const light = createLight();
 const ambLight = new THREE.AmbientLight(0xffffff, .6);
@@ -227,15 +230,22 @@ loader.load(carUrl, function (gltf) {
 });
 
 
-var phoneSceneGroup = new THREE.Group();
+var phoneSceneGroup = new THREE.Scene();
+var phone = new THREE.Scene();
 phoneSceneGroup.position.set(-20000, 20000, 20000);
 scene.add(phoneSceneGroup);
-var phoneCase = createCube({ color: 0xa1a1a1, x: 10, y: -1, z: -5});
-phoneCase.scale.set(2, 4, .25);
-//var phoneLight = createLight();
-//phoneLight.position.set(10, 5, 0);
-//phoneSceneGroup.add(phoneLight);
-phoneSceneGroup.add(phoneCase);
+loader.load(phoneUrl, function (gltf) 
+{
+  phone = gltf.scene;
+  phone.position.set(8, -1, -5);
+  phone.rotation.set(Math.PI/2, 0, 0);
+  phone.scale.set(.325,.325,.325);
+  phoneSceneGroup.add(phone);
+})
+//var phoneCase = createCube({ color: 0xa1a1a1, x: 10, y: -1, z: -5});
+//phoneCase.scale.set(2, 4, .25);
+
+
 var starGeo = new THREE.BufferGeometry();
 var verts = new Float32Array(1800);
 for(let i = 0; i < 1800; i++) {
@@ -384,16 +394,16 @@ document.getElementById("learn-more-btn").onclick = function()
     duration:1750,
     delay: 3200,
     easing: 'easeOutElastic(1.5, .5)',
-    targets: phoneCase.position,
+    targets: phone.position,
     x: 0
   });
   anime({
     duration: 580,
     delay: 3200,
-    targets: [phoneCase.rotation],
+    targets: [phone.rotation],
     direction: 'alternate',
     easing: 'easeInElastic(3, 2)',
-    z: .25
+    y: .25
   });
   anime({
     targets: ['#main-point4'],
@@ -413,7 +423,7 @@ function initTimeline()
     easing: 'easeOutElastic(7 , .65)',
     bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
   });
-  document.body.style.overflow = "scroll";
+  document.body.style.overflow = "auto";
   
   timeline = anime.timeline({
     autoplay: false,
