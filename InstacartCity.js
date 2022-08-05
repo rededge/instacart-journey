@@ -161,23 +161,6 @@ var saturationFactor = 0;
 var greyValue = .6;
 var lightFactor = 1;
 
-const fourTone = new THREE.TextureLoader().load('fourTone.jpg');
-const threeTone = new THREE.TextureLoader().load('threeTone.jpg');
-fourTone.minFilter = THREE.NearestFilter;
-fourTone.magFilter = THREE.NearestFilter;
-threeTone.minFilter = THREE.NearestFilter;
-threeTone.magFilter = THREE.NearestFilter;
-const materialParams = {
-  gradientMap: threeTone,
-};
-
-/*
-const sphereGeometry = new THREE.SphereGeometry( 5, 32, 16 );
-const sphereMaterial = new THREE.MeshToonMaterial( materialParams );
-const sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
-scene.add( sphere );
-sphere.position.set(0,20,0);
-*/
 
 loader.load(city, function (gltf) {
   scene.add(gltf.scene);
