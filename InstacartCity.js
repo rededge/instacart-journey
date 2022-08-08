@@ -11,7 +11,7 @@ import starUrl from './star.png';
 import carUrl from './Instacart_Project_car.gltf';
 import hilightBuildingsUrl from './Instacart_Project_residential_v3.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
-import city from './Instacart_Project_Background1.gltf';
+import city from './Instacart_Project_Background4.gltf';
 import phoneUrl from './Phone.gltf'
 
 const stats = Stats()
