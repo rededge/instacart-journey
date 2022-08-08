@@ -14,12 +14,10 @@ import hilightBuildingsUrl from './Instacart_Project_residential_v3.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
 import city from './Instacart_Project_Background1.gltf';
 import phoneUrl from './Phone.gltf'
-import { AmbientLight } from 'three';
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
 const canv = document.getElementById("myCanvas");
-var fps = document.getElementById("fps");
 var mainPoint1 = document.getElementById("main-point1");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
@@ -276,12 +274,7 @@ var cameraPanInAnim = anime({
   x: 0,
   y: 3.5,
   z: initialCameraZ,
-  complete: initTimeline,
-  change: function(anim)
-  {
-    camera.near = lerp(10, .5, anim.progress/100);
-    console.log(camera.near);
-  }
+  complete: initTimeline
 });
 
 var cameraRotateInAnim = anime({
@@ -474,7 +467,7 @@ function initTimeline()
   timeline.add({
     duration: animDurations["firstStop"]/3,
     targets: ['#extra-fact1-2'],
-    top: pxTovh(mainPoint2.offsetHeight + document.getElementById('extra-fact1-1').offsetHeight) + 2 + "vh",
+    top: mainPoint2.offsetHeight + document.getElementById('extra-fact1-1').offsetHeight + 20 + "px",
   }, getTimePosition("firstStop") + animDurations["firstStop"]/4);
 
   timeline.add({
@@ -516,10 +509,10 @@ function initTimeline()
 
     //stop 2
     timeline.add({
-      duration: animDurations["secondStop"]/1.5,
+      duration: animDurations["secondStop"]/3,
       targets: '#extra-fact2',
       top: mainPoint2.offsetHeight + "px"
-    }, getTimePosition("secondStop"));
+    }, getTimePosition("secondStop")+ animDurations["secondStop"]/3);
     
     timeline.add({
       duration: animDurations["secondStop"] / 3,
@@ -530,7 +523,7 @@ function initTimeline()
           houseMats[i].color.setHSL(houseColors[i].h, currSat, currLit);
         }
       }
-    }, getTimePosition("secondStop") + animDurations["secondStop"]/2);
+    }, getTimePosition("secondStop") + animDurations["secondStop"]/4);
 
     timeline.add({
       duration: 3*animDurations["secondStop"]/4,
@@ -546,7 +539,7 @@ function initTimeline()
     }, getTimePosition("panOutToCity"));
 
     timeline.add({
-      duration: animDurations["panOutToCity"] / 2.5,
+      duration: animDurations["panOutToCity"] / 3.5,
       change: function(anim) {
         for (let i = 0; i < residentialMats.length; i++) {
           let currSat = lerp(residentialColors[i].s * saturationFactor, residentialColors[i].s, anim.progress / 100);
@@ -555,7 +548,7 @@ function initTimeline()
         }
       }
       
-    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/3);
+    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/2.65);
 
     timeline.add({
       duration: animDurations["panOutToCity"],
@@ -563,13 +556,6 @@ function initTimeline()
       x:  -48.5,
       y: 44,
       z: 47.6,
-      change: function(anim)
-      {
-        console.log("change " + anim.progress)
-        if (anim.progress > 60) {
-          camera.near = lerp(1.75, 10, anim.progress/100);
-        }
-      }
     }, getTimePosition("panOutToCity"));
     timeline.add({
       duration: animDurations["panOutToCity"],
@@ -610,7 +596,7 @@ var starFlyTime = 1;
 var starBuff = starGeo.getAttribute('position');
 animate((time) => 
 {
-  console.log(camera.near);
+  prevTime = time;
   //console.log(_event.y);
   //console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
   //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
@@ -662,7 +648,7 @@ function createRenderer()
     const camera = new THREE.PerspectiveCamera(
       75,
       window.innerWidth / window.innerHeight,
-      2,
+      1,
       4000
     );
     camera.position.z = zPos;
@@ -719,7 +705,7 @@ function createRenderer()
   {
     initialCameraPos = new THREE.Vector3(43.76, 29.96, 43.1);
     initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
-    rotFactor = 2;
+    rotFactor = 2.25;
     camera.zoom = .7;
     camera.fov = 95;
     camera.updateMatrix();
@@ -729,7 +715,7 @@ function createRenderer()
     //initialCameraZ = 2.25;
     const textBoxes = document.querySelectorAll('.textbox');
     textBoxes.forEach(tb => {
-      tb.style.width = "30vw";
+      tb.style.width = "35vw";
       tb.style.fontSize = "100%";
     });
     const banners = document.querySelectorAll('.banner-point');

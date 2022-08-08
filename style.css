@@ -13,6 +13,7 @@ body
   height: 100%;
   overflow: hidden;
   flex-grow: 1;
+  font-family: Helvetica, Arial, sans-serif;
 }
 
 canvas
@@ -26,7 +27,7 @@ canvas
 p 
 {
   font-size: 85%;
-  padding: 2vh;
+  padding: 15px;
   margin: 0;
 }
 
@@ -88,7 +89,7 @@ p
 {
   left: 50%;
   transform: translate(-50%, 0%);
-  bottom: 15vh;
+  bottom: 12vh;
   z-index: 2;
   font-size: 150%;
   width: 30vw;
@@ -99,25 +100,25 @@ p
 
 #learn-more
 {
-  border-radius: 20px;
+  border-radius: 50px;
   width: 200px;
   height: 75px;
   position: fixed;
   opacity: 0;
   z-index: 2;
   left: 50%;
-  top: 77%;
+  top: 80%;
   background-color: #a0b5c3;
   transform: translate(-50%, 0%);
 }
 
 #learn-more-btn 
 {
-  border-radius: 20px;
+  border-radius: 50px;
   background-color: #003D29;
   color: #F9F1E6;
   border: 0;
-  font-size: 120%;
+  font-size: 150%;
   height: 100%;
   width: 100%;
   left: 50%;
@@ -172,7 +173,7 @@ p
 
 .container
 {
-  height: 3000vh;
+  height: 2000vh;
   position: relative;
 }
 
