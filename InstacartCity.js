@@ -718,7 +718,6 @@ function createRenderer()
     camera.updateMatrixWorld();
     camera.updateProjectionMatrix();
     camera.updateWorldMatrix();
-    //initialCameraZ = 2.25;
     const textBoxes = document.querySelectorAll('.textbox');
     textBoxes.forEach(tb => {
       tb.style.width = "35vw";
@@ -726,7 +725,7 @@ function createRenderer()
     });
     const banners = document.querySelectorAll('.banner-point');
     banners.forEach(b => { 
-      b.style.width = "75vw";
+      b.style.width = "90vw";
       b.style.fontSize = "150%";
     });
     mainPoint1.style.width = "80vw";
@@ -738,7 +737,6 @@ function createRenderer()
     rotFactor = 1;
     camera.zoom = 1;
     camera.fov = 75;
-    //initialCameraZ = 3;
     const textBoxes = document.querySelectorAll('.textbox');
     textBoxes.forEach(tb =>{
       tb.style.width = "12.5vw";
