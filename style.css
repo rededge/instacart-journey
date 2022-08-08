@@ -42,25 +42,27 @@ p
 
 .next-btn
 {
+  display: block;
   float: right;
   background-color: #F9F1E6;
   color: #003D29;
   border: 0;
   width: 40px;
   height: 40px;
-  border-radius: 100%;
+  border-radius: 60%;
   font-size: 125%;
 }
 
 .prev-btn
 {
+  display: block;
   float: left;
   background-color: #F9F1E6;
   color: #003D29;
   border: 0;
   width: 40px;
   height: 40px;
-  border-radius: 100%;
+  border-radius: 60%;
   font-size: 125%;
 }
 
