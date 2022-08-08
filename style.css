@@ -9,7 +9,7 @@ html
 @font-face 
 {
   font-family: 'InstaCart';
-  src:  url('./BETA_2_Instacart_Sans_L-Regular_web.woff2') format('woff2');
+  src:  local('BETA_2_Instacart_Sans_L-Regular_web'), url('./BETA_2_Instacart_Sans_L-Regular_web.woff2') format('woff2');
 }
 
 body
@@ -146,7 +146,7 @@ p
   left: 50%;
   transform: translate(-50%, 0);
   padding: 1vh;
-  font-size: 250%;
+  font-size: 200%;
   width: 30vw;
   color: #003D29;
   text-align: center;
@@ -171,7 +171,6 @@ p
   position: fixed;
   opacity: 1;
 }
-
 
 #extra-fact2
 {
