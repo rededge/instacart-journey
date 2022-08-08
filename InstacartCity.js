@@ -7,7 +7,6 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
 import { InteractionManager } from "three.interactive";
 import Stats from 'three/examples/jsm/libs/stats.module'
 import anime from 'animejs/lib/anime.es.js';
-import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import starUrl from './star.png';
 import carUrl from './Instacart_Project_car.gltf';
 import hilightBuildingsUrl from './Instacart_Project_residential_v3.gltf';
@@ -67,8 +66,13 @@ const renderer = createRenderer();
 const scene = createScene();
 const camera = createCamera(3);
 
+
+var panOutCameraPos = new THREE.Vector3(-48.5, 44, 47.6);
+var panOutCameraRot = new THREE.Vector3(-1.039, -.484, -.669);
+
 var initialCameraPos = new THREE.Vector3(42.8, 34.5, 42.5);
 var initialCameraRot = new THREE.Vector3(-1.023, .473, .641);
+
 //var initialCameraPos = new THREE.Vector3(-20000, 20000, 20000);
 //var initialCameraRot = new THREE.Vector3(0,0,0);
 
@@ -553,9 +557,9 @@ function initTimeline()
     timeline.add({
       duration: animDurations["panOutToCity"],
       targets: camera.position,
-      x:  -48.5,
-      y: 44,
-      z: 47.6,
+      x:  panOutCameraPos.x,
+      y: panOutCameraPos.y,
+      z: panOutCameraPos.z,
     }, getTimePosition("panOutToCity"));
     timeline.add({
       duration: animDurations["panOutToCity"],
@@ -597,7 +601,6 @@ var starBuff = starGeo.getAttribute('position');
 animate((time) => 
 {
   prevTime = time;
-  //console.log(_event.y);
   //console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
   //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
   percentage = lerp(percentage, -_event.y, .03);
@@ -705,6 +708,9 @@ function createRenderer()
   {
     initialCameraPos = new THREE.Vector3(43.76, 29.96, 43.1);
     initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
+    panOutCameraPos = new THREE.Vector3(-37.7, 33.4, 37.35);
+    panOutCameraRot = new THREE.Vector3(-.893, -.588, -.603);
+
     rotFactor = 2.25;
     camera.zoom = .7;
     camera.fov = 95;
@@ -721,7 +727,7 @@ function createRenderer()
     const banners = document.querySelectorAll('.banner-point');
     banners.forEach(b => { 
       b.style.width = "75vw";
-      b.style.fontSize = "175%";
+      b.style.fontSize = "150%";
     });
     mainPoint1.style.width = "80vw";
     mainPoint1.fontSize = "100%";

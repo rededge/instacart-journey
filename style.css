@@ -98,7 +98,7 @@ p
 {
   left: 50%;
   transform: translate(-50%, 0%);
-  bottom: 12vh;
+  bottom: 10vh;
   z-index: 2;
   font-size: 150%;
   width: 30vw;
@@ -155,7 +155,6 @@ p
 #main-point4
 {
   color: #F9F1E6;
-
 }
 
 #extra-fact1-1
