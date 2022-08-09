@@ -17,6 +17,7 @@ import phoneUrl from './Phone.gltf'
 const stats = Stats()
 document.body.appendChild(stats.dom);
 const canv = document.getElementById("myCanvas");
+var backButton = document.getElementById("back-btn");
 var mainPoint1 = document.getElementById("main-point1");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
@@ -26,10 +27,31 @@ var rotFactor = 1;
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
 
+var greyScaleCityAnim = anime({
+  duration: 1000,
+  autoplay: false,
+  change: function(anim)
+  {
+    lerpGreyscale(cityMats, cityColors, anim.progress / 100);
+  }
+});
+
+var colorCityAnim = anime({
+  duration: 1000,
+  autoplay: false,
+  change: function(anim)
+  {
+    lerpGreyscale(cityMats, cityColors, 1 - (anim.progress / 100));
+  }
+});
+
 mainPoint1.querySelector(".next-btn").onclick = function()
 {
   if (p1Idx <= point1Ps.length - 1)
     p1Idx++;
+
+  if (p1Idx == 1)
+    greyScaleCityAnim.play();
   mainPoint1.querySelector(".prev-btn").style.display = "block";
   if (p1Idx == point1Ps.length)
   {
@@ -51,7 +73,10 @@ mainPoint1.querySelector(".prev-btn").onclick = function()
     p1Idx--;
   mainPoint1.querySelector(".next-btn").style.display = "block";
   if (p1Idx == 0)
+  {
     mainPoint1.querySelector(".prev-btn").style.display = "none";
+    colorCityAnim.play();
+  }
   for (let i = 0; i < point1Ps.length; i++)
   {
     if (i == p1Idx)
@@ -59,6 +84,24 @@ mainPoint1.querySelector(".prev-btn").onclick = function()
     else
       point1Ps[i].style.display = "none";
   }
+}
+
+var reversedPanIn = false;
+
+backButton.onclick = function()
+{
+  var opacity = window.getComputedStyle(backButton).getPropertyValue("opacity");
+  if (opacity < .2) return;
+  cameraPanInAnim.reverse();
+  cameraRotateInAnim.reverse();
+  fadeMainPointAnim.reverse();
+  showBackAnim.reverse();
+  cameraPanInAnim.play();
+  cameraRotateInAnim.play();
+  fadeMainPointAnim.play();
+  showBackAnim.play();
+  reversedPanIn = true;
+  document.body.style.overflow = "hidden";
 }
 
 
@@ -152,80 +195,75 @@ var cityGroup = new THREE.Group();
 scene.add(cityGroup);
 var loader = new GLTFLoader();
 
-//var cityMats = [];
-//var cityColors = [];
+var cityMats = [];
+var cityColors = [];
 var residentialMats = [];
 var residentialColors = [];
 var houseMats = [];
 var houseColors = [];
 var saturationFactor = 0;
-var greyValue = .6;
-var lightFactor = 1;
+var greyValue = .7;
 
+function indexColors(scene, mats, colors)
+{
+  scene.traverse((o) => {
+    if (o.isMesh && !mats.includes(o.material)) 
+    {
+      mats.push(o.material);
+      let hsl = {};
+      o.material.color.getHSL(hsl);
+      colors.push(hsl);
+    }
+  });
+}
 
-loader.load(city, function (gltf) {
+function lerpGreyscale(mats, colors, t)
+{
+  for (let i = 0; i < mats.length; i++)
+  {
+    let currSat = lerp(colors[i].s, colors[i].s  * saturationFactor, t);
+    let currLit = lerp(colors[i].l, greyValue, t);
+    mats[i].color.setHSL(colors[i].h, currSat, currLit);
+  }
+}
+
+loader.load(city, function (gltf) 
+{
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
-  /*
-  gltf.scene.traverse((o) => {
-    if (o.isMesh)) {
-    }
-  });
-  */
+  indexColors(gltf.scene, cityMats, cityColors);
   cityGroup.add(gltf.scene);
 });
 
-loader.load(hilightBuildingsUrl, function (gltf) {
+loader.load(hilightBuildingsUrl, function (gltf) 
+{
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
-  gltf.scene.traverse((o) => {
-    if (o.isMesh && (!residentialMats.includes(o.material))) {
-      let hsl = {};
-      o.material.color.getHSL(hsl);
-      o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, greyValue);
-      residentialMats.push(o.material);
-      residentialColors.push(hsl);
-    }
-  });
+  indexColors(gltf.scene, cityMats, cityColors);
   cityGroup.add(gltf.scene);
 });
 
 var deliveryHouse = new THREE.Scene();
-loader.load(houseUrl, function (gltf) {
+loader.load(houseUrl, function (gltf) 
+{
   scene.add(gltf.scene);
   gltf.scene.position.set(0,0,0);
   gltf.scene.scale.set(.03,.03,.03);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
-  gltf.scene.traverse((o) => {
-    if (o.isMesh && !houseMats.includes(o.material)) {
-      let hsl = {};
-      o.material.color.getHSL(hsl);
-      o.material.color.setHSL(hsl.h, hsl.s * saturationFactor, greyValue);
-      houseMats.push(o.material);
-      houseColors.push(hsl);
-    }
-  });
+  indexColors(gltf.scene, houseMats, houseColors);
+  indexColors(gltf.scene, cityMats, cityColors);
   cityGroup.add(gltf.scene);
   deliveryHouse = gltf.scene;
 });
 
-
 var car = new THREE.Scene();
-
 loader.load(carUrl, function (gltf) {
   scene.add(gltf.scene);
   car = gltf.scene;
-  /*
-  car.traverse((o) => {
-    if (o.isMesh) {
-      
-    }
-  });
-  */
   car.scale.set(.03,.03,.03);
   car.position.set(0, 0, initialCarZ);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
@@ -269,7 +307,6 @@ var starMaterial = new THREE.PointsMaterial({
 let stars = new THREE.Points(starGeo, starMaterial);
 phoneSceneGroup.add(stars);
 
-
 var cameraPanInAnim = anime({
   targets: [camera.position],
   easing: 'easeInOutSine',
@@ -299,17 +336,31 @@ var fadeMainPointAnim = anime({
   opacity: 0
 });
 
+var showBackAnim = anime({
+  targets: ["#scroll-instructions", "#back-btn"],
+  easing: 'easeInOutSine',
+  duration: 1000,
+  autoplay: false,
+  opacity: 1
+});
+
 function cityClickHandler()
 {
+  if (reversedPanIn)
+  {
+    cameraPanInAnim.reverse();
+    cameraRotateInAnim.reverse();
+    fadeMainPointAnim.reverse();
+    showBackAnim.reverse();
+    reversedPanIn = false;
+  }
   cameraPanInAnim.play();
   cameraRotateInAnim.play();
   fadeMainPointAnim.play();
-  cityGroup.removeEventListener("click", cityClickHandler);
+  showBackAnim.play();
   canv.style.zIndex = -1;
 }
 interactionManager.add(cityGroup);
-var mtlLoader = new MTLLoader();
-var objLoader = new OBJLoader();
   
 //create timeline
 var animDurations = 
@@ -347,7 +398,7 @@ var scrollDistance = -35;
 var initialCarZ = -6.5;
 
 var buttonPressed = false;
-document.getElementById("learn-more-btn").onclick = function()
+learnMore.onclick = function()
 {
   if (buttonPressed) return;
   var opacity = window.getComputedStyle(learnMore).getPropertyValue("opacity");
@@ -418,16 +469,18 @@ document.getElementById("learn-more-btn").onclick = function()
 }
 
 
+
 function initTimeline() 
 {
-  anime({
+    if (timeline != null) return;
+    anime({
     targets: "#scroll-instructions",
     duration: 1000,
     easing: 'easeOutElastic(7 , .65)',
     bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
   });
+
   document.body.style.overflow = "auto";
-  
   timeline = anime.timeline({
     autoplay: false,
     duration: timelineLength,
@@ -436,7 +489,7 @@ function initTimeline()
 
   //camera before stop 1
   timeline.add({
-    targets: "#scroll-instructions",
+    targets: ["#scroll-instructions", "#back-btn"],
     duration: animDurations["beforeFirstStop"]/5,
     opacity: 0,
   }, getTimePosition("beforeFirstStop"));
@@ -543,16 +596,13 @@ function initTimeline()
     }, getTimePosition("panOutToCity"));
 
     timeline.add({
-      duration: animDurations["panOutToCity"] / 3.5,
+      duration: 2*animDurations["panOutToCity"]/3,
       change: function(anim) {
-        for (let i = 0; i < residentialMats.length; i++) {
-          let currSat = lerp(residentialColors[i].s * saturationFactor, residentialColors[i].s, anim.progress / 100);
-          let currLit = lerp(greyValue, residentialColors[i].l, anim.progress / 100);
-          residentialMats[i].color.setHSL(residentialColors[i].h, currSat, currLit);
-        }
+        lerpGreyscale(cityMats, cityColors, 1 - (anim.progress/100));
+        //lol
+        lerpGreyscale(houseMats, houseColors, 0);
       }
-      
-    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/2.65);
+    }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/3);
 
     timeline.add({
       duration: animDurations["panOutToCity"],

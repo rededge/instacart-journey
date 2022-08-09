@@ -31,6 +31,22 @@ canvas
   z-index: 1;
 }
 
+#back-btn
+{
+  position: fixed;
+  width: 150px;
+  height: 75px;
+  top: 40px;
+  left: 40px;
+  opacity: 0;
+  border: 0;
+  background-color: #003D29;
+  color: #F9F1E6;
+  font-family: 'InstaCart' , Fallback, sans-serif;
+  font-size: larger;
+  border-radius: 50px;
+}
+
 p 
 {
   font-size: 75%;
