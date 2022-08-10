@@ -24,6 +24,8 @@ var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
 var rotFactor = 1;
 
+var pauseTimeline = false;
+
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
 
@@ -92,14 +94,9 @@ backButton.onclick = function()
 {
   var opacity = window.getComputedStyle(backButton).getPropertyValue("opacity");
   if (opacity < .2) return;
-  cameraPanInAnim.reverse();
-  cameraRotateInAnim.reverse();
-  fadeMainPointAnim.reverse();
-  showBackAnim.reverse();
-  cameraPanInAnim.play();
-  cameraRotateInAnim.play();
-  fadeMainPointAnim.play();
-  showBackAnim.play();
+  pauseTimeline = true;
+  panInTimeline.reverse();
+  panInTimeline.play();
   reversedPanIn = true;
   document.body.style.overflow = "hidden";
 }
@@ -307,57 +304,76 @@ var starMaterial = new THREE.PointsMaterial({
 let stars = new THREE.Points(starGeo, starMaterial);
 phoneSceneGroup.add(stars);
 
-var cameraPanInAnim = anime({
-  targets: [camera.position],
-  easing: 'easeInOutSine',
-  duration: 2500,
+var panInTimeline = anime.timeline({
   autoplay: false,
-  x: 0,
-  y: 3.5,
-  z: initialCameraZ,
-  complete: initTimeline
+  easing: 'easeInOutSine',
+  complete: function(anim) {
+    if (anim.progress > 99)
+      pauseTimeline = false;
+  }
 });
 
-var cameraRotateInAnim = anime({
-  targets: camera.rotation,
-  easing: 'easeInOutSine',
-  duration: 2500,
-  autoplay: false,
-  x: -.2,
-  y: 0,
-  z: 0,
-});
+window.onload = function()
+{
+  panInTimeline.add({
+    targets: camera.rotation,
+    easing: 'easeInOutSine',
+    duration: 2500,
+    autoplay: false,
+    x: -.2,
+    y: 0,
+    z: 0,
+  }, 0);
+  
+  panInTimeline.add({
+    targets: [camera.position],
+    easing: 'easeInOutSine',
+    duration: 2500,
+    autoplay: false,
+    x: 0,
+    y: 3.5,
+    z: initialCameraZ,
+    complete: initTimeline
+  }, 0);
+  
+  panInTimeline.add({
+    targets: '#main-point1',
+    easing: 'easeInOutSine',
+    duration: 1000,
+    autoplay: false,
+    opacity: 0
+  }, 0);
+  
+  panInTimeline.add({
+    targets: ["#scroll-instructions", "#back-btn"],
+    easing: 'easeInOutSine',
+    duration: 1000,
+    autoplay: false,
+    opacity: 1
+  }, 0);
 
-var fadeMainPointAnim = anime({
-  targets: '#main-point1',
-  easing: 'easeInOutSine',
-  duration: 1000,
-  autoplay: false,
-  opacity: 0
-});
+  console.log(document.getElementById("scroll-instructions").offsetHeight);
+  console.log(canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight));
+  panInTimeline.add({
+    targets: "#scroll-instructions",
+    duration: 1000,
+    easing: 'easeOutElastic(7 , .65)',
+    bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
+  }, 2500);
+}
 
-var showBackAnim = anime({
-  targets: ["#scroll-instructions", "#back-btn"],
-  easing: 'easeInOutSine',
-  duration: 1000,
-  autoplay: false,
-  opacity: 1
-});
+
+
+
+
 
 function cityClickHandler()
 {
   if (reversedPanIn)
   {
-    cameraPanInAnim.reverse();
-    cameraRotateInAnim.reverse();
-    fadeMainPointAnim.reverse();
-    showBackAnim.reverse();
-    reversedPanIn = false;
+    panInTimeline.reverse();
   }
-  cameraPanInAnim.play();
-  cameraRotateInAnim.play();
-  fadeMainPointAnim.play();
-  showBackAnim.play();
+  panInTimeline.play();
   canv.style.zIndex = -1;
 }
 interactionManager.add(cityGroup);
@@ -472,14 +488,16 @@ learnMore.onclick = function()
 
 function initTimeline() 
 {
-    if (timeline != null) return;
-    anime({
+  if (timeline != null) return;
+  /*
+  console.log(document.getElementById("scroll-instructions").offsetHeight);
+  console.log(canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight));
+  anime({ 
     targets: "#scroll-instructions",
     duration: 1000,
     easing: 'easeOutElastic(7 , .65)',
     bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
-  });
-
+  });*/
   document.body.style.overflow = "auto";
   timeline = anime.timeline({
     autoplay: false,
@@ -655,7 +673,7 @@ animate((time) =>
   //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
   percentage = lerp(percentage, -_event.y, .03);
   var timelinePoint =  timelineLength * (percentage / maxHeight);
-  if (timeline) {
+  if (timeline && !pauseTimeline) {
     timeline.seek(timelinePoint);
   }
   //controls.update();
