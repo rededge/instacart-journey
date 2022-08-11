@@ -34,10 +34,10 @@ canvas
 #back-btn
 {
   position: fixed;
-  width: 150px;
+  width: 125px;
   height: 75px;
-  top: 40px;
-  left: 40px;
+  bottom: 25px;
+  left: 25px;
   opacity: 0;
   border: 0;
   background-color: #003D29;
@@ -52,6 +52,30 @@ p
   font-size: 75%;
   padding: 15px;
   margin: 0;
+}
+
+#advance
+{
+  right: -10vw;
+}
+
+#back
+{
+  left: -10vw;
+}
+
+.skip-btn
+{
+  opacity: 1;
+  bottom: 115vh;
+  position: fixed;
+  background-color: #003D29;
+  color: #F9F1E6;
+  border: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 60%;
+  font-size: 125%;
 }
 
 .btn-parent
@@ -155,6 +179,7 @@ p
   position: relative;
 }
 
+
 .banner-point
 {
   bottom: 115vh;
@@ -162,8 +187,8 @@ p
   left: 50%;
   transform: translate(-50%, 0);
   padding: 1vh;
-  font-size: 200%;
-  width: 30vw;
+  font-size: 250%;
+  width: 40vw;
   color: #003D29;
   text-align: center;
 }

@@ -8,24 +8,28 @@ import { InteractionManager } from "three.interactive";
 import Stats from 'three/examples/jsm/libs/stats.module'
 import anime from 'animejs/lib/anime.es.js';
 import starUrl from './star.png';
-import carUrl from './Instacart_Project_car.gltf';
-import hilightBuildingsUrl from './Instacart_Project_residential_v3.gltf';
+import carUrl from './Instacart_Project_car_v2.gltf';
+import greenCarUrl from './Instacart_Project_car_Green.gltf';
+import yellowCarUrl from './Instacart_Project_car_Yellow.gltf';
+import hilightBuildingsUrl from './Instacart_Project_residential_v4.gltf';
 import houseUrl from './Instacart_Project_house.gltf';
-import city from './Instacart_Project_Background4.gltf';
+import city from './Instacart_Project_Background_v2.gltf';
 import phoneUrl from './Phone.gltf'
+import storeURL from './Instacart_Project_Store.gltf'
+import { nextId } from '@tweenjs/tween.js';
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
 const canv = document.getElementById("myCanvas");
-var backButton = document.getElementById("back-btn");
+var advance = document.getElementById("advance");
+var back = document.getElementById("back");
 var mainPoint1 = document.getElementById("main-point1");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
 var rotFactor = 1;
-
+var timelineIdx = 0;
 var pauseTimeline = false;
-
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
 
@@ -49,17 +53,16 @@ var colorCityAnim = anime({
 
 mainPoint1.querySelector(".next-btn").onclick = function()
 {
-  if (p1Idx <= point1Ps.length - 1)
-    p1Idx++;
-
-  if (p1Idx == 1)
-    greyScaleCityAnim.play();
-  mainPoint1.querySelector(".prev-btn").style.display = "block";
-  if (p1Idx == point1Ps.length)
+  if (p1Idx == point1Ps.length - 1)
   {
     cityClickHandler();
     return;
   }
+  if (p1Idx < point1Ps.length - 1)
+    p1Idx++;
+  if (p1Idx == 1)
+    greyScaleCityAnim.play();
+  mainPoint1.querySelector(".prev-btn").style.display = "block";
   for (let i = 0; i < point1Ps.length; i++)
   {
     if (i == p1Idx)
@@ -88,12 +91,33 @@ mainPoint1.querySelector(".prev-btn").onclick = function()
   }
 }
 
+advance.onclick = function()
+{
+  if (timelineIdx < animKeyToIdx("panOutToCity"))
+  {
+    _event.y = -maxHeight * (getTimePosition(animIdxToKey(timelineIdx + 1)) / timelineLength) - 150;
+  }
+  else if (timelineIdx < animKeyToIdx("end")) {
+    timelineIdx++;
+    _event.y = -maxHeight * (getTimePosition(animIdxToKey(timelineIdx)) / timelineLength) - 150;
+  }
+}
+
+back.onclick = function()
+{
+  if (timelineIdx == 0)
+  {
+    backToPoint1();
+    return;
+  }
+  _event.y = -maxHeight * (getTimePosition(animIdxToKey(timelineIdx - 1)) / timelineLength);
+  
+}
+
 var reversedPanIn = false;
 
-backButton.onclick = function()
+function backToPoint1()
 {
-  var opacity = window.getComputedStyle(backButton).getPropertyValue("opacity");
-  if (opacity < .2) return;
   pauseTimeline = true;
   panInTimeline.reverse();
   panInTimeline.play();
@@ -194,10 +218,10 @@ var loader = new GLTFLoader();
 
 var cityMats = [];
 var cityColors = [];
-var residentialMats = [];
-var residentialColors = [];
 var houseMats = [];
 var houseColors = [];
+var storeMats = [];
+var storeColors = [];
 var saturationFactor = 0;
 var greyValue = .7;
 
@@ -223,6 +247,7 @@ function lerpGreyscale(mats, colors, t)
     mats[i].color.setHSL(colors[i].h, currSat, currLit);
   }
 }
+
 
 loader.load(city, function (gltf) 
 {
@@ -265,6 +290,29 @@ loader.load(carUrl, function (gltf) {
   car.position.set(0, 0, initialCarZ);
   gltf.scene.rotation.set(0, -Math.PI/2, 0);
   cityGroup.add(car);
+});
+
+/*
+var instersectionCar = new THREE.Scene();
+loader.load(carUrl, function (gltf) {
+  scene.add(gltf.scene);
+  car = gltf.scene;
+  car.scale.set(.03,.03,.03);
+  car.position.set(0, 0, initialCarZ);
+  gltf.scene.rotation.set(0, -Math.PI/2, 0);
+  cityGroup.add(car);
+});
+*/
+
+var store = new THREE.Scene();
+loader.load(storeURL, function (gltf) {
+  scene.add(gltf.scene);
+  store = gltf.scene;
+  store.scale.set(.03,.03,.03);
+  store.rotation.set(0, -Math.PI/2, 0);
+  indexColors(store, storeMats, storeColors);
+  indexColors(store, cityMats, cityColors);
+  cityGroup.add(store);
 });
 
 
@@ -333,7 +381,6 @@ window.onload = function()
     x: 0,
     y: 3.5,
     z: initialCameraZ,
-    complete: initTimeline
   }, 0);
   
   panInTimeline.add({
@@ -351,21 +398,29 @@ window.onload = function()
     autoplay: false,
     opacity: 1
   }, 0);
-
-  console.log(document.getElementById("scroll-instructions").offsetHeight);
-  console.log(canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight));
+  
+  panInTimeline.add({
+    targets: '.skip-btn',
+    easing: 'easeInOutSine',
+    duration: 1000,
+    opacity: 1
+  }, 2500);
+  
   panInTimeline.add({
     targets: "#scroll-instructions",
     duration: 1000,
     easing: 'easeOutElastic(7 , .65)',
     bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
   }, 2500);
+
+  panInTimeline.add({
+    targets: ".skip-btn",
+    duration: 1000,
+    easing: 'easeOutElastic(7 , .65)',
+    bottom: "80vh",
+    complete: initTimeline
+  }, 2500);
 }
-
-
-
-
-
 
 function cityClickHandler()
 {
@@ -386,6 +441,23 @@ var animDurations =
   afterFirstStop: 1000,
   secondStop: 1500,
   panOutToCity: 1500,
+  end: 0
+}
+var animIndicies = ["beforeFirstStop", "firstStop" ,"afterFirstStop", "secondStop", "panOutToCity", "end"];
+
+function animIdxToKey(idx)
+{
+  return animIndicies[idx];
+}
+
+function animKeyToIdx(key)
+{
+  for (let i = 0; i < animIndicies.length; i++)
+  {
+    if (animIndicies[i] == key)
+      return i;
+  }
+  return -1;
 }
 
 function getTimePosition(anim)
@@ -454,7 +526,8 @@ learnMore.onclick = function()
     r: 15/255,
     g: 25/255,
     b: 60/255,
-    complete: function() {
+    complete: function() 
+    {
       updateStars = true;
       camera.far = 500;
     }
@@ -485,19 +558,10 @@ learnMore.onclick = function()
 }
 
 
-
 function initTimeline() 
 {
   if (timeline != null) return;
-  /*
-  console.log(document.getElementById("scroll-instructions").offsetHeight);
-  console.log(canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight));
-  anime({ 
-    targets: "#scroll-instructions",
-    duration: 1000,
-    easing: 'easeOutElastic(7 , .65)',
-    bottom: canv.offsetHeight - (document.getElementById("scroll-instructions").offsetHeight) + "px",
-  });*/
+  let textBoxTop =  advance.offsetTop + advance.offsetHeight + 20;
   document.body.style.overflow = "auto";
   timeline = anime.timeline({
     autoplay: false,
@@ -506,6 +570,15 @@ function initTimeline()
   });
 
   //camera before stop 1
+  timeline.add({
+    duration: animDurations["beforeFirstStop"],
+    changeBegin: function()
+    {
+      timelineIdx = 0;
+      console.log(timelineIdx);
+    }
+  }, getTimePosition("beforeFirstStop"));
+
   timeline.add({
     targets: ["#scroll-instructions", "#back-btn"],
     duration: animDurations["beforeFirstStop"]/5,
@@ -527,22 +600,31 @@ function initTimeline()
 
   timeline.add({ 
     targets: ["#main-point2"],
-    easing: 'easeOutElastic(4, .65)',
+    easing: 'easeOutElastic(2, .65)',
     bottom: canv.offsetHeight - (mainPoint2.offsetHeight) + "px",
     duration: animDurations["beforeFirstStop"]/3,
   }, getTimePosition("beforeFirstStop") + animDurations["beforeFirstStop"]/5);
 
   //first stop
   timeline.add({
+    duration: animDurations["firstStop"],
+    changeBegin: function()
+    {
+      timelineIdx = 1;
+      console.log(timelineIdx);
+    }
+  }, getTimePosition("firstStop"));
+
+  timeline.add({
     duration: animDurations["firstStop"]/4,
     targets: ['#extra-fact1-1'],
-    top: mainPoint2.offsetHeight + "px",
+    top: textBoxTop + "px",
   }, getTimePosition("firstStop"));
 
   timeline.add({
     duration: animDurations["firstStop"]/3,
     targets: ['#extra-fact1-2'],
-    top: mainPoint2.offsetHeight + document.getElementById('extra-fact1-1').offsetHeight + 20 + "px",
+    top: textBoxTop + document.getElementById('extra-fact1-1').offsetHeight + 20 + "px",
   }, getTimePosition("firstStop") + animDurations["firstStop"]/4);
 
   timeline.add({
@@ -553,14 +635,24 @@ function initTimeline()
     y: -.425 * rotFactor,
   }, getTimePosition("firstStop"));
 
-  //camera after stop 1
+  //after first stop
   timeline.add({
-    duration: animDurations["firstStop"]/2,
+    duration: animDurations["afterFirstStop"],
+    changeBegin: function()
+    {
+      timelineIdx = 2;
+      console.log(timelineIdx);
+    }
+  }, getTimePosition("afterFirstStop"));
+
+
+  timeline.add({
+    duration: animDurations["afterFirstStop"]/2,
     easing: "easeInOutSine",
     targets: [camera.rotation],
     x: -.2,
     y: 0,
-    z:0,
+    z: 0,
   }, getTimePosition("afterFirstStop"));
 
   timeline.add({
@@ -569,24 +661,32 @@ function initTimeline()
     z: initialCameraZ - 43.5,
     }, getTimePosition("afterFirstStop"));
 
-    //car after stop 1
     timeline.add({
       duration: animDurations["afterFirstStop"],
       targets: car.position,
       z: initialCarZ - 43.5,
     }, getTimePosition("afterFirstStop"));
 
+    //second stop
+    timeline.add({
+      duration: animDurations["secondStop"],
+      changeBegin: function()
+      {
+        timelineIdx = 3;
+        console.log(timelineIdx);
+      }
+    }, getTimePosition("secondStop"));
+    
     timeline.add({
       duration: timelineLength/10,
       targets: ['#extra-fact1-1', '#extra-fact1-2'],
       opacity: 0,
     }, getTimePosition("secondStop") - timelineLength/10);
 
-    //stop 2
     timeline.add({
       duration: animDurations["secondStop"]/3,
       targets: '#extra-fact2',
-      top: mainPoint2.offsetHeight + "px"
+      top: textBoxTop + "px"
     }, getTimePosition("secondStop")+ animDurations["secondStop"]/3);
     
     timeline.add({
@@ -607,6 +707,15 @@ function initTimeline()
       x: -.1
     }, getTimePosition("secondStop"));
 
+    //pan out to city
+    timeline.add({
+      duration: animDurations["panOutToCity"],
+      changeBegin: function()
+      {
+        timelineIdx = 4;
+        console.log(timelineIdx);
+      }
+    }, getTimePosition("panOutToCity"));
     timeline.add({
       duration: animDurations["panOutToCity"]/3,
       targets: ['#extra-fact2', "#main-point2"],
@@ -629,6 +738,7 @@ function initTimeline()
       y: panOutCameraPos.y,
       z: panOutCameraPos.z,
     }, getTimePosition("panOutToCity"));
+
     timeline.add({
       duration: animDurations["panOutToCity"],
       targets: camera.rotation,
@@ -636,18 +746,25 @@ function initTimeline()
       y: -0.588,
       z: -0.603,
     }, getTimePosition("panOutToCity"));
+
     timeline.add({
       duration: animDurations["panOutToCity"]/3,
       targets: ["#main-point3"],
-      easing: 'easeOutElastic(5, .65)',
+      easing: 'easeOutElastic(2, .65)',
       bottom: window.innerHeight - (mainPoint3.offsetHeight) + "px",
     }, getTimePosition("panOutToCity")+ animDurations["panOutToCity"]/3);
+
     timeline.add({
-      duration:animDurations["panOutToCity"]/3,
+      duration: animDurations["panOutToCity"]/3,
       targets: "#learn-more",
       opacity: 1,
-
     }, getTimePosition("panOutToCity") + 2*animDurations["panOutToCity"]/3);
+
+    timeline.add({
+      duration: animDurations["panOutToCity"]/4,
+      targets: "#advance",
+      opacity: 0,
+    }, getTimePosition("panOutToCity") + 2*animDurations["panOutToCity"]/4);
 }
 
 function vhToPx(vh)
@@ -672,7 +789,7 @@ animate((time) =>
   //console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
   //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
   percentage = lerp(percentage, -_event.y, .03);
-  var timelinePoint =  timelineLength * (percentage / maxHeight);
+  var timelinePoint = timelineLength * (percentage / maxHeight);
   if (timeline && !pauseTimeline) {
     timeline.seek(timelinePoint);
   }
@@ -778,7 +895,6 @@ function createRenderer()
     initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
     panOutCameraPos = new THREE.Vector3(-37.7, 33.4, 37.35);
     panOutCameraRot = new THREE.Vector3(-.893, -.588, -.603);
-
     rotFactor = 2.25;
     camera.zoom = .7;
     camera.fov = 95;
@@ -798,6 +914,8 @@ function createRenderer()
     });
     mainPoint1.style.width = "80vw";
     mainPoint1.fontSize = "100%";
+    back.style.left = "5vw";
+    advance.style.right = "5vw";
   }
 
   function handleDefautlAspect()
@@ -810,5 +928,7 @@ function createRenderer()
       tb.style.width = "12.5vw";
       tb.style.fontSize = "150%";
     });
+    back.style.left = "22.5vw";
+    advance.style.right = "22.5vw";
   }
 
