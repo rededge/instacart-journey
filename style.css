@@ -195,7 +195,14 @@ p
 
 #main-point4
 {
+  position: fixed;
+  font-size: 400%;
   color: #F9F1E6;
+  padding: 1vh;
+  left: -50vw;
+  width: 25vw;
+  top: 15vh;
+  text-align: left;
 }
 
 #extra-fact1-1
@@ -221,7 +228,7 @@ p
 
 .container
 {
-  height: 2000vh;
+  height: 3000vh;
   position: relative;
 }
 
@@ -250,4 +257,10 @@ p
 {
   transform: rotate(-45deg);
   -webkit-transform: rotate(-45deg);
+}
+
+#video
+{
+  position: fixed;
+  left: 100vw;
 }

@@ -16,7 +16,6 @@ import houseUrl from './Instacart_Project_house.gltf';
 import city from './Instacart_Project_Background_v2.gltf';
 import phoneUrl from './Phone.gltf'
 import storeURL from './Instacart_Project_Store.gltf'
-import { nextId } from '@tweenjs/tween.js';
 
 const stats = Stats()
 document.body.appendChild(stats.dom);
@@ -27,6 +26,7 @@ var mainPoint1 = document.getElementById("main-point1");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
 var learnMore = document.getElementById("learn-more");
+var video = document.getElementById("video");
 var rotFactor = 1;
 var timelineIdx = 0;
 var pauseTimeline = false;
@@ -66,7 +66,7 @@ mainPoint1.querySelector(".next-btn").onclick = function()
   for (let i = 0; i < point1Ps.length; i++)
   {
     if (i == p1Idx)
-    point1Ps[i].style.display = "block";
+      point1Ps[i].style.display = "block";
     else
       point1Ps[i].style.display = "none";
   }
@@ -292,6 +292,38 @@ loader.load(carUrl, function (gltf) {
   cityGroup.add(car);
 });
 
+var passCar = new THREE.Scene();
+loader.load(greenCarUrl, function (gltf) {
+  passCar = gltf.scene;
+  passCar.traverse((o) => {
+    if (o.isMesh) {
+      o.material.roughness = 1;
+      o.material.transparent = false;
+    }
+  });
+  indexColors(passCar, cityMats, cityColors);
+  passCar.scale.set(.03,.03,.03);
+  passCar.position.set(0, 0, 38);
+  passCar.rotation.set(0, Math.PI/2, 0);
+  cityGroup.add(passCar);
+});
+
+var intersectionCar = new THREE.Scene();
+loader.load(yellowCarUrl, function (gltf) {
+  intersectionCar = gltf.scene;
+  intersectionCar.traverse((o) => {
+    if (o.isMesh) {
+      o.material.roughness = 1;
+      o.material.transparent = false;
+    }
+  });
+  indexColors(intersectionCar, cityMats, cityColors);
+  intersectionCar.scale.set(.03,.03,.03);
+  intersectionCar.position.set(13, 0, 3.3);
+  intersectionCar.rotation.set(0, Math.PI, 0);
+  cityGroup.add(intersectionCar);
+});
+
 /*
 var instersectionCar = new THREE.Scene();
 loader.load(carUrl, function (gltf) {
@@ -317,9 +349,10 @@ loader.load(storeURL, function (gltf) {
 
 
 var phoneSceneGroup = new THREE.Scene();
-var phone = new THREE.Scene();
+//var phone = new THREE.Scene();
 phoneSceneGroup.position.set(-20000, 20000, 20000);
 scene.add(phoneSceneGroup);
+/*
 loader.load(phoneUrl, function (gltf) 
 {
   phone = gltf.scene;
@@ -327,10 +360,8 @@ loader.load(phoneUrl, function (gltf)
   phone.rotation.set(Math.PI/2, 0, 0);
   phone.scale.set(.325,.325,.325);
   phoneSceneGroup.add(phone);
-})
-//var phoneCase = createCube({ color: 0xa1a1a1, x: 10, y: -1, z: -5});
-//phoneCase.scale.set(2, 4, .25);
-
+});
+*/
 
 var starGeo = new THREE.BufferGeometry();
 var verts = new Float32Array(1800);
@@ -437,13 +468,14 @@ interactionManager.add(cityGroup);
 var animDurations = 
 {
   beforeFirstStop: 1000,
+  carGoingBy: 1500,
   firstStop: 1500,
   afterFirstStop: 1000,
   secondStop: 1500,
   panOutToCity: 1500,
   end: 0
 }
-var animIndicies = ["beforeFirstStop", "firstStop" ,"afterFirstStop", "secondStop", "panOutToCity", "end"];
+var animIndicies = ["beforeFirstStop", "carGoingBy", "firstStop" ,"afterFirstStop", "secondStop", "panOutToCity", "end"];
 
 function animIdxToKey(idx)
 {
@@ -482,7 +514,6 @@ function getTimelineLength()
 
 var timelineLength = getTimelineLength();
 var timeline;
-var scrollDistance = -35;
 var initialCarZ = -6.5;
 
 var buttonPressed = false;
@@ -510,7 +541,7 @@ learnMore.onclick = function()
     }
   }); 
   anime({
-    targets: ['#main-point3', '#learn-more'],
+    targets: ['#main-point3', '#learn-more', '#back'],
     easing: 'easeInOutSine',
     duration: 1000,
     opacity: 0,
@@ -533,6 +564,8 @@ learnMore.onclick = function()
     }
   });
   document.body.style.overflow = "hidden";
+
+  /*
   anime({
     duration:1750,
     delay: 3200,
@@ -548,10 +581,23 @@ learnMore.onclick = function()
     easing: 'easeInElastic(3, 2)',
     y: .25
   });
+  */
+ anime({
+  targets: ['#video'],
+  duration: 1300,
+  delay: 3200,
+  easing: 'easeOutElastic(1, .8)',
+  left: "5vw",
+  complete: function()
+  {
+    video.play();
+  }
+ });
+
   anime({
     targets: ['#main-point4'],
-    easing: 'easeOutElastic(1, .65)',
-    bottom: window.innerHeight - document.getElementById("main-point4").offsetHeight + "px",
+    easing: 'easeInOutSine',
+    left: "4vw",
     duration: 750,
     delay: 2200
   });
@@ -561,6 +607,7 @@ learnMore.onclick = function()
 function initTimeline() 
 {
   if (timeline != null) return;
+  let storeDist = -14.2;
   let textBoxTop =  advance.offsetTop + advance.offsetHeight + 20;
   document.body.style.overflow = "auto";
   timeline = anime.timeline({
@@ -569,7 +616,7 @@ function initTimeline()
     easing: 'easeInOutSine'
   });
 
-  //camera before stop 1
+  //before stop 1
   timeline.add({
     duration: animDurations["beforeFirstStop"],
     changeBegin: function()
@@ -587,16 +634,22 @@ function initTimeline()
 
   timeline.add({
     targets: [camera.position],
-    z: initialCameraZ + -23,
+    z: initialCameraZ + storeDist,
     duration: animDurations["beforeFirstStop"],
   }, getTimePosition("beforeFirstStop"));
 
-  //car before stop 1
   timeline.add({ 
     targets: [car.position],
-    z: initialCarZ + -23,
+    z: initialCarZ + storeDist,
     duration: animDurations["beforeFirstStop"],
   }, getTimePosition("beforeFirstStop"));
+
+  timeline.add({ 
+    targets: [passCar.position],
+    z: 52.5,
+    duration: animDurations["beforeFirstStop"],
+  }, getTimePosition("beforeFirstStop"));
+
 
   timeline.add({ 
     targets: ["#main-point2"],
@@ -605,46 +658,77 @@ function initTimeline()
     duration: animDurations["beforeFirstStop"]/3,
   }, getTimePosition("beforeFirstStop") + animDurations["beforeFirstStop"]/5);
 
-  //first stop
+  //car going by
   timeline.add({
-    duration: animDurations["firstStop"],
+    duration: animDurations["carGoingBy"],
     changeBegin: function()
     {
       timelineIdx = 1;
       console.log(timelineIdx);
     }
+  }, getTimePosition("carGoingBy"));
+
+  timeline.add({
+    duration: animDurations["carGoingBy"]/2,
+    easing: "easeInOutSine",
+    targets: [camera.rotation],
+    y: .2 * rotFactor,
+  }, getTimePosition("carGoingBy"));
+
+  timeline.add({
+    duration: 3*animDurations["carGoingBy"]/4,
+    easing: "easeInOutSine",
+    targets: [intersectionCar.position],
+    x:39,
+  }, getTimePosition("carGoingBy") + animDurations["carGoingBy"]/4);
+
+
+  //first stop
+  timeline.add({
+    duration: animDurations["firstStop"],
+    changeBegin: function()
+    {
+      timelineIdx = 2;
+      console.log(timelineIdx);
+    }
   }, getTimePosition("firstStop"));
 
   timeline.add({
-    duration: animDurations["firstStop"]/4,
+    duration: animDurations["firstStop"]/6,
     targets: ['#extra-fact1-1'],
     top: textBoxTop + "px",
   }, getTimePosition("firstStop"));
 
   timeline.add({
-    duration: animDurations["firstStop"]/3,
+    duration: animDurations["firstStop"]/6,
     targets: ['#extra-fact1-2'],
     top: textBoxTop + document.getElementById('extra-fact1-1').offsetHeight + 20 + "px",
-  }, getTimePosition("firstStop") + animDurations["firstStop"]/4);
+  }, getTimePosition("firstStop") + animDurations["firstStop"]/6);
 
   timeline.add({
-    duration: 7 * animDurations["firstStop"]/8,
+    duration: animDurations["firstStop"]/2,
     easing: "easeInOutSine",
     targets: [camera.rotation],
     x: -.1,
-    y: -.425 * rotFactor,
+    y: -.5 * rotFactor,
   }, getTimePosition("firstStop"));
+
+  timeline.add({
+    duration: animDurations["firstStop"]/2,
+    change: function(anim) {
+      lerpGreyscale(storeMats, storeColors, 1 - anim.progress/100)
+    }
+  }, getTimePosition("firstStop") + animDurations["firstStop"]/2);
 
   //after first stop
   timeline.add({
     duration: animDurations["afterFirstStop"],
     changeBegin: function()
     {
-      timelineIdx = 2;
+      timelineIdx = 3;
       console.log(timelineIdx);
     }
   }, getTimePosition("afterFirstStop"));
-
 
   timeline.add({
     duration: animDurations["afterFirstStop"]/2,
@@ -672,7 +756,7 @@ function initTimeline()
       duration: animDurations["secondStop"],
       changeBegin: function()
       {
-        timelineIdx = 3;
+        timelineIdx = 4;
         console.log(timelineIdx);
       }
     }, getTimePosition("secondStop"));
@@ -692,11 +776,7 @@ function initTimeline()
     timeline.add({
       duration: animDurations["secondStop"] / 3,
       change: function(anim) {
-        for (let i = 0; i < houseMats.length; i++) {
-          let currSat = lerp(houseColors[i].s * saturationFactor, houseColors[i].s, anim.progress / 100);
-          let currLit = lerp(greyValue, houseColors[i].l, anim.progress / 100);
-          houseMats[i].color.setHSL(houseColors[i].h, currSat, currLit);
-        }
+        lerpGreyscale(houseMats, houseColors, 1 - anim.progress/100)
       }
     }, getTimePosition("secondStop") + animDurations["secondStop"]/4);
 
@@ -712,7 +792,7 @@ function initTimeline()
       duration: animDurations["panOutToCity"],
       changeBegin: function()
       {
-        timelineIdx = 4;
+        timelineIdx = 5;
         console.log(timelineIdx);
       }
     }, getTimePosition("panOutToCity"));
@@ -728,6 +808,8 @@ function initTimeline()
         lerpGreyscale(cityMats, cityColors, 1 - (anim.progress/100));
         //lol
         lerpGreyscale(houseMats, houseColors, 0);
+        lerpGreyscale(storeMats, storeColors, 0);
+
       }
     }, getTimePosition("panOutToCity") + animDurations["panOutToCity"]/3);
 
