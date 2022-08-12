@@ -25,10 +25,13 @@ var back = document.getElementById("back");
 var mainPoint1 = document.getElementById("main-point1");
 var mainPoint2 = document.getElementById("main-point2");
 var mainPoint3 = document.getElementById("main-point3");
+var mainPoint4 = document.getElementById("main-point4");
 var learnMore = document.getElementById("learn-more");
 var video = document.getElementById("video");
 var rotFactor = 1;
+var storeRotFactor = 1;
 var timelineIdx = 0;
+var arrowBottomVh = 90;
 var pauseTimeline = false;
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
@@ -190,6 +193,7 @@ function onWheel (e)
 };
 
 function scroll (e) {
+  if (!timeline) return;
   // limit scroll top
   if ((_event.y + _event.deltaY) > 0 ) {
     _event.y = 0;
@@ -394,6 +398,7 @@ var panInTimeline = anime.timeline({
 
 window.onload = function()
 {
+  video.style.top = video.offsetHeight + 100 + "px";
   panInTimeline.add({
     targets: camera.rotation,
     easing: 'easeInOutSine',
@@ -448,7 +453,7 @@ window.onload = function()
     targets: ".skip-btn",
     duration: 1000,
     easing: 'easeOutElastic(7 , .65)',
-    bottom: "80vh",
+    bottom: arrowBottomVh + "vh",
     complete: initTimeline
   }, 2500);
 }
@@ -532,7 +537,7 @@ learnMore.onclick = function()
     x: phoneSceneGroup.position.x,
     y: phoneSceneGroup.position.y,
     z: phoneSceneGroup.position.z,
-    begin: function(){
+    begin: function() {
       camera.near = 20;
     },
     complete: function () {
@@ -565,39 +570,22 @@ learnMore.onclick = function()
   });
   document.body.style.overflow = "hidden";
 
-  /*
-  anime({
-    duration:1750,
-    delay: 3200,
-    easing: 'easeOutElastic(1.5, .5)',
-    targets: phone.position,
-    x: 0
-  });
-  anime({
-    duration: 580,
-    delay: 3200,
-    targets: [phone.rotation],
-    direction: 'alternate',
-    easing: 'easeInElastic(3, 2)',
-    y: .25
-  });
-  */
  anime({
   targets: ['#video'],
-  duration: 1300,
+  duration: 1000,
   delay: 3200,
-  easing: 'easeOutElastic(1, .8)',
-  left: "5vw",
+  easing: 'easeInOutSine',
+  top: mainPoint4.offsetHeight + "px",
   complete: function()
   {
     video.play();
   }
  });
-
+ 
   anime({
     targets: ['#main-point4'],
-    easing: 'easeInOutSine',
-    left: "4vw",
+    easing: 'easeOutElastic(2, .65)',
+    bottom: window.innerHeight - (mainPoint4.offsetHeight) + "px",
     duration: 750,
     delay: 2200
   });
@@ -607,7 +595,7 @@ learnMore.onclick = function()
 function initTimeline() 
 {
   if (timeline != null) return;
-  let storeDist = -14.2;
+  let storeDist = -14.5;
   let textBoxTop =  advance.offsetTop + advance.offsetHeight + 20;
   document.body.style.overflow = "auto";
   timeline = anime.timeline({
@@ -655,7 +643,7 @@ function initTimeline()
     targets: ["#main-point2"],
     easing: 'easeOutElastic(2, .65)',
     bottom: canv.offsetHeight - (mainPoint2.offsetHeight) + "px",
-    duration: animDurations["beforeFirstStop"]/3,
+    duration: animDurations["beforeFirstStop"]/2,
   }, getTimePosition("beforeFirstStop") + animDurations["beforeFirstStop"]/5);
 
   //car going by
@@ -709,8 +697,16 @@ function initTimeline()
     duration: animDurations["firstStop"]/2,
     easing: "easeInOutSine",
     targets: [camera.rotation],
-    x: -.1,
-    y: -.5 * rotFactor,
+    x: 0,
+    y: -1 * storeRotFactor,
+  }, getTimePosition("firstStop"));
+
+  timeline.add({
+    duration: animDurations["firstStop"]/2,
+    easing: "easeInOutSine",
+    targets: [camera.position],
+    z: initialCameraZ + storeDist - 1,
+    x: -1
   }, getTimePosition("firstStop"));
 
   timeline.add({
@@ -743,6 +739,7 @@ function initTimeline()
     duration: animDurations["afterFirstStop"],
     targets: camera.position,
     z: initialCameraZ - 43.5,
+    x: 0
     }, getTimePosition("afterFirstStop"));
 
     timeline.add({
@@ -830,7 +827,7 @@ function initTimeline()
     }, getTimePosition("panOutToCity"));
 
     timeline.add({
-      duration: animDurations["panOutToCity"]/3,
+      duration: animDurations["panOutToCity"]/2,
       targets: ["#main-point3"],
       easing: 'easeOutElastic(2, .65)',
       bottom: window.innerHeight - (mainPoint3.offsetHeight) + "px",
@@ -977,7 +974,9 @@ function createRenderer()
     initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
     panOutCameraPos = new THREE.Vector3(-37.7, 33.4, 37.35);
     panOutCameraRot = new THREE.Vector3(-.893, -.588, -.603);
+    arrowBottomVh = 80;
     rotFactor = 2.25;
+    storeRotFactor = 1.5;
     camera.zoom = .7;
     camera.fov = 95;
     camera.updateMatrix();
@@ -992,7 +991,7 @@ function createRenderer()
     const banners = document.querySelectorAll('.banner-point');
     banners.forEach(b => { 
       b.style.width = "90vw";
-      b.style.fontSize = "150%";
+      b.style.fontSize = "250%";
     });
     mainPoint1.style.width = "80vw";
     mainPoint1.fontSize = "100%";
@@ -1002,7 +1001,9 @@ function createRenderer()
 
   function handleDefautlAspect()
   {
+    arrowBottomVh = 90;
     rotFactor = 1;
+    storeRotFactor = 1;
     camera.zoom = 1;
     camera.fov = 75;
     const textBoxes = document.querySelectorAll('.textbox');

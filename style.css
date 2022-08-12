@@ -83,12 +83,12 @@ p
   position: relative;
   padding-left: 1.5vh;
   padding-right: 1.5vh;
-  padding-bottom: 1.5vh;
-  height: 5vh;
+  height: 50px;
 }
 
 .next-btn
 {
+  position: relative;
   display: block;
   float: right;
   background-color: #F9F1E6;
@@ -102,6 +102,7 @@ p
 
 .prev-btn
 {
+  position: relative;
   display: block;
   float: left;
   background-color: #F9F1E6;
@@ -193,6 +194,7 @@ p
   text-align: center;
 }
 
+/*
 #main-point4
 {
   position: fixed;
@@ -204,6 +206,12 @@ p
   top: 15vh;
   text-align: left;
 }
+*/
+#main-point4
+{
+  color: #F9F1E6;
+}
+
 
 #extra-fact1-1
 {
@@ -262,5 +270,7 @@ p
 #video
 {
   position: fixed;
-  left: 100vw;
+  left: 50vw;
+  height: 90vh;
+  transform: translate(-50%, 0);
 }
