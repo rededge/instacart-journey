@@ -17,8 +17,8 @@ import city from './Instacart_Project_Background_v2.gltf';
 import phoneUrl from './Phone.gltf'
 import storeURL from './Instacart_Project_Store.gltf'
 
-const stats = Stats()
-document.body.appendChild(stats.dom);
+//const stats = Stats()
+//document.body.appendChild(stats.dom);
 const canv = document.getElementById("myCanvas");
 var advance = document.getElementById("advance");
 var back = document.getElementById("back");
@@ -896,7 +896,7 @@ animate((time) =>
     if (stars.material.opacity < .99)
       stars.material.opacity += .0025;
   }
-  stats.update();
+  //stats.update();
   renderer.render(scene, camera);
 });
 
