@@ -31,7 +31,7 @@ var video = document.getElementById("video");
 var rotFactor = 1;
 var storeRotFactor = 1;
 var timelineIdx = 0;
-var arrowBottomVh = 90;
+var arrowBottomOffset = 75;
 var pauseTimeline = false;
 var point1Ps = mainPoint1.querySelectorAll("p");
 let p1Idx =  0;
@@ -453,7 +453,7 @@ window.onload = function()
     targets: ".skip-btn",
     duration: 1000,
     easing: 'easeOutElastic(7 , .65)',
-    bottom: arrowBottomVh + "vh",
+    bottom: canv.offsetHeight - arrowBottomOffset + "px",
     complete: initTimeline
   }, 2500);
 }
@@ -974,7 +974,7 @@ function createRenderer()
     initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
     panOutCameraPos = new THREE.Vector3(-37.7, 33.4, 37.35);
     panOutCameraRot = new THREE.Vector3(-.893, -.588, -.603);
-    arrowBottomVh = 80;
+    arrowBottomOffset = 150;
     rotFactor = 2.25;
     storeRotFactor = 1.5;
     camera.zoom = .7;
@@ -1001,7 +1001,7 @@ function createRenderer()
 
   function handleDefautlAspect()
   {
-    arrowBottomVh = 90;
+    arrowBottomOffset = 75;
     rotFactor = 1;
     storeRotFactor = 1;
     camera.zoom = 1;
