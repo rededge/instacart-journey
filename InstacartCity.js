@@ -28,6 +28,7 @@ var mainPoint3 = document.getElementById("main-point3");
 var mainPoint4 = document.getElementById("main-point4");
 var learnMore = document.getElementById("learn-more");
 var video = document.getElementById("video");
+var lerpConst = .04;
 var rotFactor = 1;
 var storeRotFactor = 1;
 var timelineIdx = 0;
@@ -179,7 +180,7 @@ function onTouchStart (e) {
 function onTouchMove (e) {
   var t = (e.targetTouches) ? e.targetTouches[0] : e;
   // the multiply factor on mobile must be about 10x the factor applied on the wheel
-  _event.deltaY = (t.pageY - touchStartY) * 5;
+  _event.deltaY = (t.pageY - touchStartY) * 10;
   touchStartY = t.pageY;
   scroll(e)
 }
@@ -473,7 +474,7 @@ interactionManager.add(cityGroup);
 var animDurations = 
 {
   beforeFirstStop: 1000,
-  carGoingBy: 1500,
+  carGoingBy: 1000,
   firstStop: 1500,
   afterFirstStop: 1000,
   secondStop: 1500,
@@ -872,7 +873,7 @@ animate((time) =>
   prevTime = time;
   //console.log(camera.position.x + ", " + camera.position.y + ", " + camera.position.z);
   //console.log(camera.rotation.x + ", " + camera.rotation.y + ", " + camera.rotation.z);
-  percentage = lerp(percentage, -_event.y, .03);
+  percentage = lerp(percentage, -_event.y, lerpConst);
   var timelinePoint = timelineLength * (percentage / maxHeight);
   if (timeline && !pauseTimeline) {
     timeline.seek(timelinePoint);
@@ -975,6 +976,7 @@ function createRenderer()
 
   function handleMobileAspect()
   {
+    lerpConst = .06;
     initialCameraPos = new THREE.Vector3(43.76, 29.96, 43.1);
     initialCameraRot = new THREE.Vector3(-1.19, .364, .727);
     panOutCameraPos = new THREE.Vector3(-37.7, 33.4, 37.35);
@@ -1007,6 +1009,7 @@ function createRenderer()
 
   function handleDefautlAspect()
   {
+    lerpConst = .04;
     arrowBottomOffset = 75;
     rotFactor = 1;
     storeRotFactor = 1;
