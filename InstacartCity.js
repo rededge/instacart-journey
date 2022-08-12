@@ -120,10 +120,18 @@ back.onclick = function()
 
   if (timelineIdx == 0)
   {
-    backToPoint1();
-    return;
+    if (_event.y < -100)
+    {
+      _event.y = 0;
+    }
+    else
+    {
+      backToPoint1();
+      return;
+    }
   }
-  _event.y = -maxHeight * (getTimePosition(animIdxToKey(timelineIdx - 1)) / timelineLength);
+  else
+    _event.y = -maxHeight * (getTimePosition(animIdxToKey(timelineIdx - 1)) / timelineLength);
   
 }
 
@@ -659,7 +667,7 @@ function initTimeline()
   //before stop 1
   timeline.add({
     duration: animDurations["beforeFirstStop"],
-    changeBegin: function()
+    changeBegin: function(anim)
     {
       timelineIdx = 0;
       console.log(timelineIdx);
