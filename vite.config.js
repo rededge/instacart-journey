@@ -1,5 +1,5 @@
 import { defineConfig } from "vite";
 export default defineConfig({
-    base: '/InstaCartSite/',
+    base: '/instacart-journey/',
     assetsInclude: ['**/*.gltf']
 })
