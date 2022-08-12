@@ -991,7 +991,7 @@ function createRenderer()
     const banners = document.querySelectorAll('.banner-point');
     banners.forEach(b => { 
       b.style.width = "90vw";
-      b.style.fontSize = "250%";
+      b.style.fontSize = "150%";
     });
     mainPoint1.style.width = "80vw";
     mainPoint1.fontSize = "100%";
@@ -1010,6 +1010,11 @@ function createRenderer()
     textBoxes.forEach(tb =>{
       tb.style.width = "12.5vw";
       tb.style.fontSize = "150%";
+    });
+    const banners = document.querySelectorAll('.banner-point');
+    banners.forEach(b => { 
+      b.style.width = "40vw";
+      b.style.fontSize = "250%";
     });
     back.style.left = "22.5vw";
     advance.style.right = "22.5vw";
