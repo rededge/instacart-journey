@@ -576,6 +576,11 @@ learnMore.onclick = function()
   delay: 3200,
   easing: 'easeInOutSine',
   top: mainPoint4.offsetHeight + "px",
+  begin: function()
+  {
+    video.play();
+    video.pause();
+  },
   complete: function()
   {
     video.play();
@@ -997,6 +1002,7 @@ function createRenderer()
     mainPoint1.fontSize = "100%";
     back.style.left = "5vw";
     advance.style.right = "5vw";
+    video.style.height = "75vh";
   }
 
   function handleDefautlAspect()
