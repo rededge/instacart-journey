@@ -56,11 +56,13 @@ p
 
 #advance
 {
+  z-index: 2;
   right: -10vw;
 }
 
 #back
 {
+  z-index: 2;
   left: -10vw;
 }
 

@@ -109,6 +109,15 @@ advance.onclick = function()
 
 back.onclick = function()
 {
+  if (learnMoreButtonPressed)
+  {
+    phoneTimeline.reverse();
+    phoneTimeline.play();
+    phoneTimelineReversed = true;
+    _event.y = -maxHeight;
+    return;
+  }
+
   if (timelineIdx == 0)
   {
     backToPoint1();
@@ -522,16 +531,44 @@ var timelineLength = getTimelineLength();
 var timeline;
 var initialCarZ = -6.5;
 
-var buttonPressed = false;
+var learnMoreButtonPressed = false;
+var phoneTimelineReversed = false;
+var phoneTimeline;
 learnMore.onclick = function()
 {
-  if (buttonPressed) return;
+  if (learnMoreButtonPressed) return;
   var opacity = window.getComputedStyle(learnMore).getPropertyValue("opacity");
   if (opacity <= .6) return;
-  buttonPressed = true;
-  timeline.pause();
-  timeline = null;
-  anime({
+  learnMoreButtonPressed = true;
+  pauseTimeline = true;
+  if (phoneTimelineReversed)
+  {
+    phoneTimeline.reverse();
+    phoneTimeline.play();
+    phoneTimelineReversed = false;
+  }
+
+  phoneTimeline = anime.timeline({
+    autoplay: false,
+    easing: 'easeInOutSine',
+    complete: function (anim)
+    {
+      if (anim.progress < 1)
+      {
+        pauseTimeline = false;
+        learnMoreButtonPressed = false;
+      }
+    }
+  });
+
+  phoneTimeline.add({
+    duration: 1000,
+    targets: "#back",
+    backgroundColor: "#ffffff",
+    color: "#000000",
+  }, 1000);
+
+  phoneTimeline.add({
     targets: [camera.position],
     easing: 'easeInQuint',
     duration: 2250,
@@ -542,24 +579,31 @@ learnMore.onclick = function()
       camera.near = 20;
     },
     complete: function () {
-      camera.rotation.set(0,0,0);
       camera.near = 1;
     }
-  }); 
-  anime({
-    targets: ['#main-point3', '#learn-more', '#back'],
+  }, 0);
+
+  phoneTimeline.add({
+    targets: [camera.rotation],
+    x: 0,
+    y: 0,
+    z: 0,
+    duration: 250,
+  }, 2000);
+
+  phoneTimeline.add
+  ({
+    targets: ['#main-point3', '#learn-more'],
     easing: 'easeInOutSine',
     duration: 1000,
     opacity: 0,
-    complete: function() {
-      learnMore.style.display = "none";
-    }
-  });
-  anime({
+  }, 0);
+
+  phoneTimeline.add
+  ({
     targets: scene.background,
     easing: 'easeInQuad',
     duration: 1500,
-    delay: 500,
     r: 15/255,
     g: 25/255,
     b: 60/255,
@@ -568,33 +612,35 @@ learnMore.onclick = function()
       updateStars = true;
       camera.far = 500;
     }
-  });
+  }, 500);
   document.body.style.overflow = "hidden";
 
- anime({
+  phoneTimeline.add
+  ({
   targets: ['#video'],
   duration: 1000,
-  delay: 3200,
   easing: 'easeInOutSine',
   top: mainPoint4.offsetHeight + "px",
   begin: function()
   {
     video.play();
     video.pause();
+    video.currentTime = 0;
   },
   complete: function()
   {
     video.play();
   }
- });
+ }, 3200);
  
-  anime({
+  phoneTimeline.add({
     targets: ['#main-point4'],
     easing: 'easeOutElastic(2, .65)',
     bottom: window.innerHeight - (mainPoint4.offsetHeight) + "px",
     duration: 750,
-    delay: 2200
-  });
+  }, 2200);
+
+  phoneTimeline.play();
 }
 
 
@@ -850,7 +896,7 @@ function initTimeline()
       targets: "#advance",
       opacity: 0,
     }, getTimePosition("panOutToCity") + 2*animDurations["panOutToCity"]/4);
-}
+  }
 
 function vhToPx(vh)
 {
