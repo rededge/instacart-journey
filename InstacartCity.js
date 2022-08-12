@@ -398,7 +398,7 @@ var panInTimeline = anime.timeline({
 
 window.onload = function()
 {
-  video.style.top = video.offsetHeight + 100 + "px";
+  video.style.top = canv.offsetHeight + 200 + "px";
   panInTimeline.add({
     targets: camera.rotation,
     easing: 'easeInOutSine',
